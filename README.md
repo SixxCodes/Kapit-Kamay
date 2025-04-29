@@ -51,7 +51,7 @@ o	Students can build a simple "Trust Score" on their profile along with the rati
 •	Students (senior high, college) looking for experience, part-time work, and community engagement.
 •	Families, small businesses, and community organizations needing temporary help or special assistance.
 
-###How it will benefit them
+### How it will benefit them
 •	Students build skills, work experience, and financial support for education.
 •	Students can include their completed tasks and Trust Points in their future resumes as proof of real-world experience since companies today not only look for diplomas but also experiences.
 •	Community members find dependable, eager help for their needs without high costs.
