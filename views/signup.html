@@ -1,18 +1,27 @@
 <!DOCTYPE html>
-    <html lang="en">
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Kapit Kamay</title>
+        <title>Sign Up - Kapit Kamay</title>
     </head>
-
     <body>
 
         <div class="container">
             <h1>Create Account</h1>
             <form method="post" action="signup.php">
+
+                <!-- Role select (Student or Community) -->
+                <div class="role-selection">
+                    <label for="role_student">Student</label>
+                    <input type="radio" name="role" value="student" id="role_student" required>
+                    <label for="role_community">Community</label>
+                    <input type="radio" name="role" value="community" id="role_community" required>
+                </div>
+
                 <div class="input-group">
-                    <input type="text" name="signup_name" placeholder="Name" required>
+                    <input type="text" name="signup_fname" placeholder="First Name" required>
+                    <input type="text" name="signup_lname" placeholder="Last Name" required>
                 </div>
                 <div class="input-group">
                     <input type="email" name="signup_email" placeholder="Email" required>
@@ -20,6 +29,7 @@
                 <div class="input-group">
                     <input type="password" name="signup_password" placeholder="Password" required>
                 </div>
+                
                 <input type="submit" class="btn" value="Sign Up" name="signup-btn">
             </form>
             <div class="links">
@@ -29,5 +39,4 @@
         </div>
 
     </body>
-
 </html>

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'mysqlconnection.php';
+include_once('../includes/mysqlconnection.php');
 ?>
 
 <!DOCTYPE html>
@@ -10,13 +10,13 @@ include 'mysqlconnection.php';
     <title>Homepage</title>
 </head>
 <body>
-    <h1>Hello, 
+    <h1>Hello student, 
         <?php 
             if(isset($_SESSION['login_email'])) {
                 $email = $_SESSION['login_email'];
-                $query = mysqli_query($connection, "SELECT * FROM users WHERE email='$email'");
+                $query = mysqli_query($connection, "SELECT * FROM users WHERE Email='$email'");
                 $row = mysqli_fetch_array($query);
-                echo htmlspecialchars($row['name']);
+                echo htmlspecialchars($row['FirstName']);
             } 
         ?>
     </h1>
