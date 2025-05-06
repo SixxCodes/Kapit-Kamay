@@ -26,11 +26,11 @@
     <head>
         <meta charset="UTF-8">
         <title>Homepage</title>
-
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- temporary, must be external sya later -->
         <style>
             /* Modal Background */
-            #taskModal {
+            #taskModal1 {
                 display: none;
                 position: fixed;
                 top: 0; left: 0;
@@ -43,7 +43,7 @@
             }
 
             /* Scrollable */
-            .modal-content {
+            .modal-content1 {
                 background: #fff;
                 padding: 20px;
                 border-radius: 10px;
@@ -101,6 +101,27 @@
             button[type="submit"]:hover {
                 background-color: #218838;
             }
+
+
+            .task-card2 {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            }
+            .modal2 {
+                display: none;
+                position: fixed;
+                background: rgba(0,0,0,0.5);
+                top: 0; left: 0; right: 0; bottom: 0;
+                justify-content: center;
+                align-items: center;
+            }
+            .modal-content2 {
+                background: white;
+                padding: 20px;
+                min-width: 300px;
+            }
         </style>
 
     </head>
@@ -122,8 +143,8 @@
         <h2>Create a Task</h2>
         <button id="openModalBtn" style="font-size: 24px; padding: 10px;">＋</button>          
 
-        <div id="taskModal">
-            <div class="modal-content">
+        <div id="taskModal1">
+            <div class="modal-content1">
                 <button id="closeModalBtn">✖</button>
                 <h2>Create a Task</h2>
                 <form action="create_post.php" method="post">
@@ -195,13 +216,48 @@
         </div>
         
         <!-- ------------------------------VIEW POSTS--------------------------------> 
+        <h2>Your Posted Tasks</h2>
+        
+        // calculate time ago ni
+        <?php while ($row = $result->fetch_assoc()): 
+            $datePosted = new DateTime($row['DatePosted']);
+            $now = new DateTime();
+            $interval = $now->diff($datePosted);
+            $minutesAgo = $interval->days * 24 * 60 + $interval->h * 60 + $interval->i;
+            if ($minutesAgo == 0) {
+                $timeAgo = "just now";
+            } elseif ($minutesAgo == 1) {
+                $timeAgo = "1 minute ago";
+            } else {
+                $timeAgo = "$minutesAgo minutes ago";
+            }
+        ?>
+
+        <div class="task-card2" onclick="openModal(<?= $row['TaskID'] ?>)">
+            <h3><?= htmlspecialchars($row['Title']) ?></h3>
+            <p>Location Type: <?= htmlspecialchars($row['LocationType']) ?></p>
+            <p>Date Posted: <?= htmlspecialchars($row['DatePosted']) ?> (<?= $timeAgo ?>)</p>
+            <p>Price: ₱<?= number_format($row['Price'], 2) ?></p>
+            <p>Comments: <?= $row['CommentCount'] ?></p>
+        </div>
+
+        <?php endwhile; ?>
+
+        <!-- Modal after click sa post-->
+        <div id="taskModal" class="modal2" onclick="closeModal()">
+            <div class="modal-content2" onclick="event.stopPropagation()">
+                <h3>Task Details</h3>
+                <p>This modal is currently empty. You can load task details here later.</p>
+                <button onclick="closeModal()">Close</button>
+            </div>
+        </div>
         
         <!-- ------------------------------JAVASCRIPT--------------------------------> 
         <script>
-            // Create task model
+            // sa create post na script
             const openModalBtn = document.getElementById('openModalBtn');
             const closeModalBtn = document.getElementById('closeModalBtn');
-            const taskModal = document.getElementById('taskModal');
+            const taskModal = document.getElementById('taskModal1');
 
             openModalBtn.addEventListener('click', () => {
                 taskModal.style.display = 'flex';
@@ -216,6 +272,15 @@
                     taskModal.style.display = 'none';
                 }
             });
+
+            // sa view post na script
+            function openModal(taskID) {
+                document.getElementById('taskModal').style.display = 'flex';
+            }
+
+            function closeModal() {
+                document.getElementById('taskModal').style.display = 'none';
+            }
         </script>
     </body>
 </html>
