@@ -74,7 +74,7 @@
     }
 
     // ------------------------------VIEW POST------------------------------ 
-    // kwaon ang taSks nga gi-post sa current naka-log in community user
+    // kwaon ang tasks nga gi-post sa current naka-log in community user
     $query = "
     SELECT 
         t.TaskID, t.Title, t.LocationType, t.DatePosted, t.Price,

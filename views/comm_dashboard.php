@@ -30,7 +30,7 @@
         <!-- temporary, must be external sya later -->
         <style>
             /* Modal Background */
-            #taskModal1 {
+            #create-post-modal {
                 display: none;
                 position: fixed;
                 top: 0; left: 0;
@@ -43,7 +43,7 @@
             }
 
             /* Scrollable */
-            .modal-content1 {
+            .create-post-modal-content {
                 background: #fff;
                 padding: 20px;
                 border-radius: 10px;
@@ -53,12 +53,6 @@
                 overflow-y: auto;
                 position: relative;
                 margin: 40px auto;
-            }
-
-            #openModalBtn {
-                font-size: 24px;
-                padding: 10px 20px;
-                cursor: pointer;
             }
 
             #closeModalBtn {
@@ -126,6 +120,7 @@
 
     </head>
     <body>
+        <!-- ------------------------------PROFILE SUMMARY------------------------------ -->
         <h1>
             <?php 
                 if(isset($_SESSION['login_email'])) {
@@ -138,15 +133,13 @@
         </h1>
 
         <!-- ------------------------------CREATE POST------------------------------ -->
-        
         <!-- Plus button to open modal -->
-        <h2>Create a Task</h2>
-        <button id="openModalBtn" style="font-size: 24px; padding: 10px;">＋</button>          
+        <h2>Active Posts</h2>
+        <button id="openModalBtn">＋</button>          
 
-        <div id="taskModal1">
-            <div class="modal-content1">
+        <div id="create-post-modal">
+            <div class="create-post-modal-content">
                 <button id="closeModalBtn">✖</button>
-                <h2>Create a Task</h2>
                 <form action="create_post.php" method="post">
 
                     <div class="form-group">
@@ -155,16 +148,16 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="location">Location:</label>
-                        <input type="text" name="location" id="location" required>
-                    </div>
-
-                    <div class="form-group">
                         <label>Location Type:</label><br>
                         <input type="radio" name="location_type" value="Online" id="online" required>
                         <label for="online">Online</label>
                         <input type="radio" name="location_type" value="In-person" id="in_person" required>
                         <label for="in_person">In-person</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">Location:</label>
+                        <input type="text" name="location" id="location" required>
                     </div>
 
                     <div class="form-group">
@@ -180,6 +173,7 @@
                             <option value="Tutoring">Tutoring</option>
                             <option value="Delivery">Delivery</option>
                             <option value="Errands">Errands</option>
+                            <!-- dungag lang -->
                         </select>
                     </div>
 
@@ -210,19 +204,17 @@
                         <textarea name="notes" id="notes"></textarea>
                     </div>
 
-                    <button type="submit">Submit Task</button>
+                    <button type="submit">Done</button>
                 </form>
             </div>
         </div>
         
         <!-- ------------------------------VIEW POSTS--------------------------------> 
-        <h2>Your Posted Tasks</h2>
-        
-        // calculate time ago ni
         <?php while ($row = $result->fetch_assoc()): 
             $datePosted = new DateTime($row['DatePosted']);
             $now = new DateTime();
             $interval = $now->diff($datePosted);
+            // calculate time ago ni
             $minutesAgo = $interval->days * 24 * 60 + $interval->h * 60 + $interval->i;
             if ($minutesAgo == 0) {
                 $timeAgo = "just now";
@@ -254,10 +246,10 @@
         
         <!-- ------------------------------JAVASCRIPT--------------------------------> 
         <script>
-            // sa create post na script
+            // ------------------------------CREATE POST------------------------------
             const openModalBtn = document.getElementById('openModalBtn');
             const closeModalBtn = document.getElementById('closeModalBtn');
-            const taskModal = document.getElementById('taskModal1');
+            const taskModal = document.getElementById('create-post-modal');
 
             openModalBtn.addEventListener('click', () => {
                 taskModal.style.display = 'flex';
@@ -273,7 +265,7 @@
                 }
             });
 
-            // sa view post na script
+            // ------------------------------VIEW POST------------------------------
             function openModal(taskID) {
                 document.getElementById('taskModal').style.display = 'flex';
             }
