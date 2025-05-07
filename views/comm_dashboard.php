@@ -9,7 +9,7 @@
 
 <!-- 
     TO-DO List:
-    1. Buhat create task modal
+    1. Buhat create task modal (done)
     2. buhat view task modal (mark as done, edit, delete, comment, hire)
     3. butang previous posts
     4. butang sa profile (active posts, previous posts, total task posted)
@@ -50,6 +50,46 @@
         <meta charset="UTF-8">
         <title>Homepage</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>/* Modal styles */
+            .modal {
+                display: none; /* Hidden by default */
+                position: fixed; /* Stay in place */
+                z-index: 1; /* Sit on top */
+                left: 0;
+                top: 0;
+                width: 100%; /* Full width */
+                height: 100%; /* Full height */
+                overflow: auto; /* Enable scroll if needed */
+                background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
+            }
+
+            /* Modal content */
+            .modal-content {
+                background-color: #fefefe;
+                margin: 15% auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%;
+                max-width: 500px;
+            }
+
+            /* The close button */
+            .close {
+                color: #aaa;
+                font-size: 28px;
+                font-weight: bold;
+                position: absolute;
+                top: 10px;
+                right: 25px;
+            }
+
+            .close:hover,
+            .close:focus {
+                color: black;
+                text-decoration: none;
+                cursor: pointer;
+            }
+        </style>
     </head>
     <body>
         <!-- ------------------------------PROFILE SUMMARY------------------------------ -->
@@ -69,9 +109,6 @@
                 <label>Title:</label>
                 <input type="text" name="title" required><br>
 
-                <label>Description:</label>
-                <textarea name="description" required></textarea><br>
-
                 <label>Location Type:</label>
                 <select name="location_type" required>
                     <option value="Online">Online</option>
@@ -81,16 +118,19 @@
                 <label>Location (if In-person):</label>
                 <input type="text" name="location"><br>
 
-                <label>Category:</label>
-                <input type="text" name="category" required><br>
-
                 <label>Completion Date:</label>
                 <input type="date" name="completion_date"><br>
+        
+                <label>Category:</label>
+                <input type="text" name="category" required><br>
 
                 <label>Price:</label>
                 <input type="number" name="price" step="0.01" required><br>
 
-                <label>Notes (optional):</label>
+                <label>Task Description:</label>
+                <textarea name="description" required></textarea><br>
+
+                <label>Notes / Requirements (optional):</label>
                 <textarea name="notes"></textarea><br>
 
                 <input type="submit" name="create_task" value="Post Task">
@@ -108,36 +148,50 @@
 
             if ($active_result->num_rows > 0) {
                 while ($task = $active_result->fetch_assoc()) {
-                    echo "<div style='border:1px solid #000; padding:10px; margin-bottom:10px;'>";
-                    echo "<h3>" . htmlspecialchars($task['Title']) . "</h3>";
-                    echo "<p><strong>Category:</strong> " . htmlspecialchars($task['Category']) . "</p>";
-                    echo "<p><strong>Location Type:</strong> " . htmlspecialchars($task['LocationType']) . "</p>";
-                    echo "<p><strong>Price:</strong> ₱" . number_format($task['Price'], 2) . "</p>";
-                    echo "<p><strong>Status:</strong> " . htmlspecialchars($task['Status']) . "</p>";
+                    // Calculate "time ago"
+                    $datePosted = new DateTime($task['DatePosted']);
+                    $now = new DateTime();
+                    $interval = $now->diff($datePosted);
 
-                    // Dropdown for task actions
-                    echo "<form action='update_task.php' method='POST'>";
-                    echo "<input type='hidden' name='task_id' value='" . $task['TaskID'] . "'>";
-                    echo "<select name='task_status'>";
-                    echo "<option value='Open'" . ($task['Status'] == 'Open' ? ' selected' : '') . ">Open</option>";
-                    echo "<option value='Ongoing'" . ($task['Status'] == 'Ongoing' ? ' selected' : '') . ">Ongoing</option>";
-                    echo "<option value='Closed'" . ($task['Status'] == 'Closed' ? ' selected' : '') . ">Closed</option>";
-                    echo "</select>";
+                    if ($interval->y > 0) {
+                        $timeAgo = $interval->y . " year(s) ago";
+                    } elseif ($interval->m > 0) {
+                        $timeAgo = $interval->m . " month(s) ago";
+                    } elseif ($interval->d > 0) {
+                        $timeAgo = $interval->d . " day(s) ago";
+                    } elseif ($interval->h > 0) {
+                        $timeAgo = $interval->h . " hour(s) ago";
+                    } elseif ($interval->i > 0) {
+                        $timeAgo = $interval->i . " minute(s) ago";
+                    } else {
+                        $timeAgo = "Just now";
+                    }
 
-                    // Action buttons: Edit, Delete, Mark as Done
-                    // echo "<button type='submit' name='update_task'>Update</button>";
-                    echo "<a href='edit_task.php?task_id=" . $task['TaskID'] . "'>Edit</a> | ";
-                    echo "<a href='delete_task.php?task_id=" . $task['TaskID'] . "' onclick='return confirm(\"Are you sure you want to delete this task?\")'>Delete</a>";
-                    echo "</form>";
-
-                    echo "</div>";
+                    echo "<div class='task-box' 
+                                data-taskid='" . $task['TaskID'] . "'
+                                data-title='" . htmlspecialchars($task['Title']) . "'
+                                data-description='" . htmlspecialchars($task['Description']) . "'
+                                data-locationtype='" . $task['LocationType'] . "'
+                                data-location='" . $task['Location'] . "'
+                                data-category='" . $task['Category'] . "'
+                                data-completiondate='" . $task['CompletionDate'] . "'
+                                data-price='" . $task['Price'] . "'
+                                data-notes='" . htmlspecialchars($task['Notes']) . "'
+                                data-status='" . $task['Status'] . "'
+                                onclick='openTaskModal(this)'>
+                                <h3>" . htmlspecialchars($task['Title']) . "</h3>
+                                <p><strong>Location Type:</strong> " . htmlspecialchars($task['LocationType']) . "</p>
+                                <p><strong>Completion Date:</strong> " . htmlspecialchars($task['CompletionDate']) . "</p>
+                                <p><em>Posted: $timeAgo</em></p>
+                                <p><strong>Price:</strong> ₱" . number_format($task['Price'], 2) . "</p>
+                                
+                        </div>";
                 }
             } else {
                 echo "<p>No active posts found.</p>";
             }
             $active_query->close();
         ?>
-
 
         <!-- ------------------------------PREVIOUS POST------------------------------ -->
         <h2>Previous Posts</h2>
@@ -163,9 +217,58 @@
             $previous_query->close();
         ?>
 
+        <!-- ------------------------------VIEW POST------------------------------ -->
+        <!-- Task Details Modal -->
+        <div id="taskModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeTaskModal()" style="color: black;">&times;</span>
+                
+                <!-- Task Title -->
+                <h2 id="modalTitle"></h2>
+                
+                <!-- Task Details -->
+                <p><strong>Location:</strong> <span id="modalLocation"></span></p>
+                <p><strong>Completion Date:</strong> <span id="modalCompletionDate"></span></p>
+                <p><strong>Category:</strong> <span id="modalCategory"></span></p>
+                <!-- <p><strong>Location Type:</strong> <span id="modalLocationType"></span></p> -->
+                <p><strong>Price:</strong> ₱<span id="modalPrice"></span></p>
+                <p><strong>Description:</strong> <span id="modalDescription"></span></p>
+                <p><strong>Notes:</strong> <span id="modalNotes"></span></p>
+                <!-- <p><strong>Status:</strong> <span id="modalStatus"></span></p> -->
+                
+                <!-- Dropdown for task actions -->
+                <div id="taskActionSection">
+                    <form action="update_task.php" method="POST">
+                        <input type="hidden" name="task_id" id="modalTaskID">
+                        
+                        <!-- Dropdown for task status -->
+                        <select name="task_status" id="taskStatusDropdown" onchange="updateTaskStatus(this)">
+                            <option value="Open">Open</option>
+                            <option value="Closed">Mark as Done</option>
+                        </select>
+                        
+                        <!-- <button type="submit" id="updateTaskStatus">Update Status</button> -->
+                    </form>
+
+                    <!-- Edit Task and Delete Task actions -->
+                    <a href="edit_task.php?task_id=" id="editTaskLink">Edit Task</a> | 
+                    <a href="delete_task.php?task_id=" id="deleteTaskLink" onclick="return confirm('Are you sure you want to delete this task?')">Delete Task</a>
+                </div>
+            </div>
+        </div>
+
+        <?php
+            // Get tasks by this community user
+            $task_query = $connection->prepare("SELECT * FROM tasks WHERE CommunityID = ? ORDER BY DatePosted DESC");
+            $task_query->bind_param("i", $communityID);
+            $task_query->execute();
+            $tasks_result = $task_query->get_result();
+        ?>
         
+        <!-- ------------------------------LOG OUT------------------------------ -->
         <a href="logout.php">Logout</a>
 
+        <!-- ------------------------------OTHERS------------------------------ -->
         <?php
         if (isset($_POST['create_task'])) {
             $title = $_POST['title'];
@@ -190,6 +293,84 @@
             $stmt->close();
         }
         ?>
+        <script>
+            function openTaskModal(taskElement) {
+                // Get task details from the clicked task box
+                var taskId = taskElement.getAttribute('data-taskid');
+                var title = taskElement.getAttribute('data-title');
+                var description = taskElement.getAttribute('data-description');
+                var locationType = taskElement.getAttribute('data-locationtype');
+                var location = taskElement.getAttribute('data-location');
+                var category = taskElement.getAttribute('data-category');
+                var completionDate = taskElement.getAttribute('data-completiondate');
+                var price = taskElement.getAttribute('data-price');
+                var notes = taskElement.getAttribute('data-notes');
+                var status = taskElement.getAttribute('data-status');
+                
+                // Set task details into the modal
+                document.getElementById('modalTitle').innerText = title;
+                document.getElementById('modalCategory').innerText = category;
+                // document.getElementById('modalLocationType').innerText = locationType;
+                document.getElementById('modalLocation').innerText = location;
+                document.getElementById('modalCompletionDate').innerText = completionDate;
+                document.getElementById('modalPrice').innerText = price;
+                document.getElementById('modalNotes').innerText = notes;
+                // document.getElementById('modalStatus').innerText = status;
+                document.getElementById("modalDescription").textContent = description;
 
+                
+                // Set hidden input field with task ID
+                document.getElementById('modalTaskID').value = taskId;
+                
+                // Set edit and delete links with the task ID
+                document.getElementById('editTaskLink').href = 'edit_task.php?task_id=' + taskId;
+                document.getElementById('deleteTaskLink').href = 'delete_task.php?task_id=' + taskId;
+
+                // Set the current task status in the dropdown
+                var statusDropdown = document.getElementById('taskStatusDropdown');
+                for (var i = 0; i < statusDropdown.options.length; i++) {
+                    if (statusDropdown.options[i].value === status) {
+                        statusDropdown.selectedIndex = i;
+                        break;
+                    }
+                }
+
+                // Show the modal
+                document.getElementById('taskModal').style.display = 'block';
+            }
+
+            function closeTaskModal() {
+                // Hide the modal
+                document.getElementById('taskModal').style.display = 'none';
+            }
+
+
+
+
+            function updateTaskStatus(selectElement) {
+            const status = selectElement.value;
+            const taskID = document.getElementById('modalTaskID').value;
+
+            // Send AJAX request
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "update_task.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    alert("Task status updated to " + status);
+                    document.getElementById('modalStatus').innerText = status;
+
+                    // Optional: Close the modal or refresh task list
+                    // closeTaskModal();
+                    // location.reload();
+                } else {
+                    alert("Error updating task status.");
+                }
+            };
+
+            xhr.send("task_id=" + encodeURIComponent(taskID) + "&task_status=" + encodeURIComponent(status));
+        }
+        </script>
     </body>
 </html>

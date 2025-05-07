@@ -1,24 +1,51 @@
 <?php
-session_start();
-include_once('../includes/mysqlconnection.php');
+    session_start();
+    include_once('../includes/mysqlconnection.php');
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $taskID = $_POST['task_id'];
-    $title = $_POST['title'];
-    $description = $_POST['description'];
-    $category = $_POST['category'];
-    $price = $_POST['price'];
-    // and so on...
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    $stmt = $connection->prepare("UPDATE tasks SET Title=?, Description=?, Category=?, Price=? WHERE TaskID=?");
-    $stmt->bind_param("sssdi", $title, $description, $category, $price, $taskID);
+        // ✅ 1. Handle status-only update (from AJAX or modal)
+        if (isset($_POST['task_id']) && isset($_POST['task_status']) && !isset($_POST['title'])) {
+            $taskID = $_POST['task_id'];
+            $taskStatus = $_POST['task_status'];
 
-    if ($stmt->execute()) {
-        header("Location: comm_dashboard.php?success=Task updated");
-        exit();
-    } else {
-        echo "Failed to update task.";
+            $stmt = $connection->prepare("UPDATE tasks SET Status = ? WHERE TaskID = ?");
+            $stmt->bind_param("si", $taskStatus, $taskID);
+
+            if ($stmt->execute()) {
+                echo "success";
+            } else {
+                echo "error";
+            }
+
+            $stmt->close();
+            exit(); // Stop script here for status-only update
+        }
+
+        // ✅ 2. Handle full task update (from edit_task.php)
+        $task_id = $_POST['task_id'];
+        $title = $_POST['title'];
+        $description = $_POST['description'];
+        $category = $_POST['category'];
+        $price = $_POST['price'];
+        $location = $_POST['location'];
+        $location_type = $_POST['location_type']; // <-- fixed variable name
+        $completion_date = $_POST['completion_date'];
+        $notes = $_POST['notes'];
+
+        // Update all fields including CompletionDate and Notes
+        $stmt = $connection->prepare("UPDATE tasks 
+            SET Title = ?, LocationType = ?, Location = ?, Category = ?, Price = ?, Description = ?, CompletionDate = ?, Notes = ? 
+            WHERE TaskID = ?");
+        $stmt->bind_param("sssssdssi", $title, $location_type, $location, $category, $price, $description, $completion_date, $notes, $task_id);
+
+        if ($stmt->execute()) {
+            header("Location: comm_dashboard.php?success=Task updated");
+            exit();
+        } else {
+            echo "Failed to update task.";
+        }
+
+        $stmt->close();
     }
-    $stmt->close();
-}
 ?>
