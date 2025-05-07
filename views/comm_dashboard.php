@@ -1,7 +1,7 @@
 <!-- 
     unsa gni mabuhat sa community dashboard?
-    1. make post
-    2. view, edit, delete post
+    1. make post (done)
+    2. view, edit, delete post (done)
     3. view comments, profile
     4. hire
     5. rate 
@@ -12,7 +12,7 @@
     1. Buhat create task modal (done)
     2. buhat view task modal (mark as done, edit, delete, comment, hire)
     3. butang previous posts (done)
-    4. butang sa profile (active posts, previous posts, total task posted)
+    4. butang sa profile (active posts, previous posts, total task posted) (done)
  -->
 
  <?php
@@ -52,14 +52,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>/* Modal styles */
             .modal {
-                display: none; /* Hidden by default */
-                position: fixed; /* Stay in place */
-                z-index: 1; /* Sit on top */
+                display: none; /* Hidden sa */
+                position: fixed; 
+                z-index: 1; 
                 left: 0;
                 top: 0;
-                width: 100%; /* Full width */
-                height: 100%; /* Full height */
-                overflow: auto; /* Enable scroll if needed */
+                width: 100%; 
+                height: 100%; 
+                overflow: auto; /* Enable scroll ug kailangan */
                 background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
             }
 
@@ -73,7 +73,7 @@
                 max-width: 500px;
             }
 
-            /* The close button */
+            /* close button */
             .close {
                 color: #aaa;
                 font-size: 28px;
@@ -92,16 +92,44 @@
         </style>
     </head>
     <body>
+
         <!-- ------------------------------PROFILE SUMMARY------------------------------ -->
         <h1>Kapit-Kamay</h1>
         <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
 
+        <?php
+            // Step 1: Count Active Tasks 
+            $stmtActive = $connection->prepare("SELECT COUNT(*) FROM tasks WHERE CommunityID = ? AND Status = 'Open'");
+            $stmtActive->bind_param("i", $communityID);
+            $stmtActive->execute();
+            $stmtActive->bind_result($activeTasks);
+            $stmtActive->fetch();
+            $stmtActive->close();
+
+            // Step 2: Count Previous Tasks
+            $stmtPrevious = $connection->prepare("SELECT COUNT(*) FROM tasks WHERE CommunityID = ? AND Status = 'Closed'");
+            $stmtPrevious->bind_param("i", $communityID);
+            $stmtPrevious->execute();
+            $stmtPrevious->bind_result($previousTasks);
+            $stmtPrevious->fetch();
+            $stmtPrevious->close();
+
+            // Step 3: total
+            $totalTasks = $activeTasks + $previousTasks;
+        ?>
+
+        <!-- Display counts -->
+        <div style="margin-top: 10px;">
+            <p><strong>Total Active Task(s):</strong> <?php echo $activeTasks; ?></p>
+            <p><strong>Total Previous Task(s):</strong> <?php echo $previousTasks; ?></p>
+            <p><strong>Total Task(s) Posted:</strong> <?php echo $totalTasks; ?></p>
+        </div>
 
         <!-- ------------------------------CREATE POST------------------------------ -->
-        <!-- Plus button to open modal -->
+        <!-- Plus button to open create task -->
         <button onclick="document.getElementById('createTaskModal').style.display='block'">+ Create Task</button>
 
-        <!-- Create Task Modal -->
+        <!-- Create Task -->
         <div id="createTaskModal" style="display:none;">
             <form action="" method="POST">
                 <h3>Create New Task</h3>
@@ -151,6 +179,35 @@
                 <button type="button" onclick="document.getElementById('createTaskModal').style.display='none'">Cancel</button>
             </form>
         </div>
+
+        <?php
+            if (isset($_POST['create_task'])) {
+                $title = $_POST['title'];
+                $description = $_POST['description'];
+                $locationType = $_POST['location_type'];
+                $location = $_POST['location'] ?? null;
+                $category = $_POST['category'];
+                $completionDate = $_POST['completion_date'] ?: null;
+                $estimatedDuration = $_POST['estimated_duration'];
+                $price = $_POST['price'];
+                $notes = $_POST['notes'];
+                $status = 'Open';
+
+                $stmt = $connection->prepare("INSERT INTO tasks 
+                    (CommunityID, Title, Description, LocationType, Location, Category, CompletionDate, EstimatedDuration, Price, Notes, Status) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+                $stmt->bind_param("isssssssdss", $communityID, $title, $description, $locationType, $location, $category, $completionDate, $estimatedDuration, $price, $notes, $status);
+
+                if ($stmt->execute()) {
+                    echo "<script>alert('Task posted successfully!'); window.location.href = 'comm_dashboard.php';</script>";
+                } else {
+                    echo "Error: " . $stmt->error;
+                }
+
+                $stmt->close();
+            }
+        ?>
         
         <!-- ------------------------------ACTIVE POST------------------------------ -->
         <h2>Active Posts</h2>
@@ -252,7 +309,7 @@
                 <p><strong>Notes:</strong> <span id="modalNotes"></span></p>
                 <!-- <p><strong>Status:</strong> <span id="modalStatus"></span></p> -->
                 
-                <!-- Dropdown for task actions -->
+                <!-- Dropdown -->
                 <div id="taskActionSection">
                     <form action="update_task.php" method="POST">
                         <input type="hidden" name="task_id" id="modalTaskID">
@@ -274,7 +331,7 @@
         </div>
 
         <?php
-            // Get tasks by this community user
+            // Get tasks gikan ani nga community user (dapat dli niya makita ang post sa uban nga community user)
             $task_query = $connection->prepare("SELECT * FROM tasks WHERE CommunityID = ? ORDER BY DatePosted DESC");
             $task_query->bind_param("i", $communityID);
             $task_query->execute();
@@ -284,39 +341,11 @@
         <!-- ------------------------------LOG OUT------------------------------ -->
         <a href="logout.php">Logout</a>
 
-        <!-- ------------------------------OTHERS------------------------------ -->
-        <?php
-            if (isset($_POST['create_task'])) {
-                $title = $_POST['title'];
-                $description = $_POST['description'];
-                $locationType = $_POST['location_type'];
-                $location = $_POST['location'] ?? null;
-                $category = $_POST['category'];
-                $completionDate = $_POST['completion_date'] ?: null;
-                $estimatedDuration = $_POST['estimated_duration'];
-                $price = $_POST['price'];
-                $notes = $_POST['notes'];
-                $status = 'Open';
-
-                $stmt = $connection->prepare("INSERT INTO tasks 
-                    (CommunityID, Title, Description, LocationType, Location, Category, CompletionDate, EstimatedDuration, Price, Notes, Status) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-                $stmt->bind_param("isssssssdss", $communityID, $title, $description, $locationType, $location, $category, $completionDate, $estimatedDuration, $price, $notes, $status);
-
-                if ($stmt->execute()) {
-                    echo "<script>alert('Task posted successfully!'); window.location.href = 'comm_dashboard.php';</script>";
-                } else {
-                    echo "Error: " . $stmt->error;
-                }
-
-                $stmt->close();
-            }
-        ?>
-
+        <!-- ------------------------------JAVASCRIPT------------------------------ -->
         <script>
             function openTaskModal(taskElement) {
-                // Get task details from the clicked task box
+                // ------------------------------FOR VIEW POST------------------------------
+                // Get task details sa gi-click lang nga task box
                 var taskId = taskElement.getAttribute('data-taskid');
                 var title = taskElement.getAttribute('data-title');
                 var description = taskElement.getAttribute('data-description');
@@ -340,16 +369,15 @@
                 document.getElementById('modalNotes').innerText = notes;
                 // document.getElementById('modalStatus').innerText = status;
                 document.getElementById("modalDescription").textContent = description;
-
                 
                 // Set hidden input field with task ID
                 document.getElementById('modalTaskID').value = taskId;
                 
-                // Set edit and delete links with the task ID
+                // Set edit and delete links with  task ID
                 document.getElementById('editTaskLink').href = 'edit_task.php?task_id=' + taskId;
                 document.getElementById('deleteTaskLink').href = 'delete_task.php?task_id=' + taskId;
 
-                // Set the current task status in the dropdown
+                // Set current task status in the dropdown
                 var statusDropdown = document.getElementById('taskStatusDropdown');
                 for (var i = 0; i < statusDropdown.options.length; i++) {
                     if (statusDropdown.options[i].value === status) {
@@ -358,18 +386,16 @@
                     }
                 }
 
-                // Show the modal
+                // Show modal
                 document.getElementById('taskModal').style.display = 'block';
             }
 
             function closeTaskModal() {
-                // Hide the modal
+                // Hide modal
                 document.getElementById('taskModal').style.display = 'none';
             }
 
-
-
-
+            // ------------------------------FOR SWITCH STATUS------------------------------
             function updateTaskStatus(selectElement) {
             const status = selectElement.value;
             const taskID = document.getElementById('modalTaskID').value;
@@ -384,7 +410,6 @@
                     alert("Task status updated to " + status);
                     document.getElementById('modalStatus').innerText = status;
 
-                    // Optional: Close the modal or refresh task list
                     // closeTaskModal();
                     // location.reload();
                 } else {

@@ -10,7 +10,7 @@
     if (isset($_GET['task_id'])) {
         $taskID = $_GET['task_id'];
 
-        // Fetch task details
+        // kuha task details
         $task_query = $connection->prepare("SELECT * FROM tasks WHERE TaskID = ?");
         $task_query->bind_param("i", $taskID);
         $task_query->execute();

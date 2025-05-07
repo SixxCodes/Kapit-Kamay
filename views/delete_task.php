@@ -10,12 +10,12 @@
     if (isset($_GET['task_id'])) {
         $taskID = $_GET['task_id'];
 
-        // Delete the task
+        // Delete task
         $delete_query = $connection->prepare("DELETE FROM tasks WHERE TaskID = ?");
         $delete_query->bind_param("i", $taskID);
         $delete_query->execute();
 
-        // Check if deletion was successful
+        // Check if delete successful
         if ($delete_query->affected_rows > 0) {
             echo "Task deleted successfully!";
         } else {
