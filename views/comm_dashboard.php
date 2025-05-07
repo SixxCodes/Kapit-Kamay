@@ -9,16 +9,39 @@
 
 <!-- 
     TO-DO List:
-    1. Buhat create task modal (done)
+    1. Buhat create task modal
     2. buhat view task modal (mark as done, edit, delete, comment, hire)
     3. butang previous posts
     4. butang sa profile (active posts, previous posts, total task posted)
  -->
 
-<?php
-    // session_start();
-    include_once('../includes/mysqlconnection.php');
-    include_once('create_post.php');
+ <?php
+    session_start();
+    include_once('../includes/mysqlconnection.php'); // connect ni sa database
+
+    // check if user: logged in, role: Community
+    if (!isset($_SESSION['login_email']) || $_SESSION['role'] !== 'Community') {
+        echo "Unauthorized access.";
+        exit();
+    }
+
+    //ang gi-login nga email kay mao na sya ang ma-store sa $email variable
+    $email = $_SESSION['login_email'];
+
+    // Get Community User ID 
+    $stmt = $connection->prepare("SELECT UserID, FirstName, LastName FROM users WHERE Email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $stmt->bind_result($communityID, $firstName, $lastName);
+    $stmt->fetch();
+    $stmt->close();
+
+    // pag wlay match
+    if (!$communityID) {
+        echo "Community user not found.";
+        exit();
+    }
+
 ?>
 
 <!DOCTYPE html>
@@ -27,252 +50,146 @@
         <meta charset="UTF-8">
         <title>Homepage</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- temporary, must be external sya later -->
-        <style>
-            /* Modal Background */
-            #create-post-modal {
-                display: none;
-                position: fixed;
-                top: 0; left: 0;
-                width: 100%; height: 100%;
-                background: rgba(0, 0, 0, 0.6);
-                justify-content: center;
-                align-items: center;
-                z-index: 999;
-                overflow: auto;
-            }
-
-            /* Scrollable */
-            .create-post-modal-content {
-                background: #fff;
-                padding: 20px;
-                border-radius: 10px;
-                width: 90%;
-                max-width: 600px;
-                max-height: 90vh;
-                overflow-y: auto;
-                position: relative;
-                margin: 40px auto;
-            }
-
-            #closeModalBtn {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                font-size: 18px;
-                cursor: pointer;
-                background: transparent;
-                border: none;
-            }
-
-            .form-group {
-                margin-bottom: 15px;
-            }
-
-            label {
-                display: block;
-                margin-bottom: 5px;
-            }
-
-            input[type="text"],
-            input[type="date"],
-            select,
-            textarea {
-                width: 100%;
-                padding: 8px;
-                box-sizing: border-box;
-            }
-
-            button[type="submit"] {
-                padding: 10px 15px;
-                background-color: #28a745;
-                color: white;
-                border: none;
-                cursor: pointer;
-                border-radius: 5px;
-            }
-
-            button[type="submit"]:hover {
-                background-color: #218838;
-            }
-
-
-            .task-card2 {
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            }
-            .modal2 {
-                display: none;
-                position: fixed;
-                background: rgba(0,0,0,0.5);
-                top: 0; left: 0; right: 0; bottom: 0;
-                justify-content: center;
-                align-items: center;
-            }
-            .modal-content2 {
-                background: white;
-                padding: 20px;
-                min-width: 300px;
-            }
-        </style>
-
     </head>
     <body>
         <!-- ------------------------------PROFILE SUMMARY------------------------------ -->
-        <h1>
-            <?php 
-                if(isset($_SESSION['login_email'])) {
-                    $email = $_SESSION['login_email'];
-                    $query = mysqli_query($connection, "SELECT * FROM users WHERE Email='$email'");
-                    $row = mysqli_fetch_array($query);
-                    echo htmlspecialchars($row['FirstName'] . ' ' . $row['LastName']);
-                } 
-            ?>
-        </h1>
+        <h1>Kapit-Kamay</h1>
+        <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
+
 
         <!-- ------------------------------CREATE POST------------------------------ -->
         <!-- Plus button to open modal -->
-        <h2>Active Posts</h2>
-        <button id="openModalBtn">＋</button>          
+        <button onclick="document.getElementById('createTaskModal').style.display='block'">+ Create Task</button>
 
-        <div id="create-post-modal">
-            <div class="create-post-modal-content">
-                <button id="closeModalBtn">✖</button>
-                <form action="create_post.php" method="post">
+        <!-- Create Task Modal -->
+        <div id="createTaskModal" style="display:none;">
+            <form action="" method="POST">
+                <h3>Create New Task</h3>
 
-                    <div class="form-group">
-                        <label for="title">Task Title:</label>
-                        <input type="text" name="title" id="title" required>
-                    </div>
+                <label>Title:</label>
+                <input type="text" name="title" required><br>
 
-                    <div class="form-group">
-                        <label>Location Type:</label><br>
-                        <input type="radio" name="location_type" value="Online" id="online" required>
-                        <label for="online">Online</label>
-                        <input type="radio" name="location_type" value="In-person" id="in_person" required>
-                        <label for="in_person">In-person</label>
-                    </div>
+                <label>Description:</label>
+                <textarea name="description" required></textarea><br>
 
-                    <div class="form-group">
-                        <label for="location">Location:</label>
-                        <input type="text" name="location" id="location" required>
-                    </div>
+                <label>Location Type:</label>
+                <select name="location_type" required>
+                    <option value="Online">Online</option>
+                    <option value="In-person">In-person</option>
+                </select><br>
 
-                    <div class="form-group">
-                        <label for="completion_date">Completion Date:</label>
-                        <input type="date" name="completion_date" id="completion_date" required>
-                    </div>
+                <label>Location (if In-person):</label>
+                <input type="text" name="location"><br>
 
-                    <div class="form-group">
-                        <label for="category">Category:</label>
-                        <select name="category" id="category" required>
-                            <option value="" disabled selected>Select a category</option>
-                            <option value="Cleaning">Cleaning</option>
-                            <option value="Tutoring">Tutoring</option>
-                            <option value="Delivery">Delivery</option>
-                            <option value="Errands">Errands</option>
-                            <!-- dungag lang -->
-                        </select>
-                    </div>
+                <label>Category:</label>
+                <input type="text" name="category" required><br>
 
-                    <div class="form-group">
-                        <label for="duration">Estimated Duration:</label>
-                        <select name="duration" id="duration" required>
-                            <option value="" disabled selected>Select duration</option>
-                            <option value="30 minutes">30 minutes</option>
-                            <option value="1 hour">1 hour</option>
-                            <option value="2-3 hours">2–3 hours</option>
-                            <option value="Half day">Half day</option>
-                            <option value="Full day">Whole day</option>
-                        </select>
-                    </div>
+                <label>Completion Date:</label>
+                <input type="date" name="completion_date"><br>
 
-                    <div class="form-group">
-                        <label for="price">Price (₱):</label>
-                        <input type="text" name="price" id="price" required>
-                    </div>
+                <label>Price:</label>
+                <input type="number" name="price" step="0.01" required><br>
 
-                    <div class="form-group">
-                        <label for="description">Task Description:</label>
-                        <textarea name="description" id="description" required></textarea>
-                    </div>
+                <label>Notes (optional):</label>
+                <textarea name="notes"></textarea><br>
 
-                    <div class="form-group">
-                        <label for="notes">Notes / Requirements (optional):</label>
-                        <textarea name="notes" id="notes"></textarea>
-                    </div>
-
-                    <button type="submit">Done</button>
-                </form>
-            </div>
+                <input type="submit" name="create_task" value="Post Task">
+                <button type="button" onclick="document.getElementById('createTaskModal').style.display='none'">Cancel</button>
+            </form>
         </div>
         
-        <!-- ------------------------------VIEW POSTS--------------------------------> 
-        <?php while ($row = $result->fetch_assoc()): 
-            $datePosted = new DateTime($row['DatePosted']);
-            $now = new DateTime();
-            $interval = $now->diff($datePosted);
-            // calculate time ago ni
-            $minutesAgo = $interval->days * 24 * 60 + $interval->h * 60 + $interval->i;
-            if ($minutesAgo == 0) {
-                $timeAgo = "just now";
-            } elseif ($minutesAgo == 1) {
-                $timeAgo = "1 minute ago";
+        <!-- ------------------------------ACTIVE POST------------------------------ -->
+        <h2>Active Posts</h2>
+        <?php
+            $active_query = $connection->prepare("SELECT * FROM tasks WHERE CommunityID = ? AND Status IN ('Open', 'Ongoing') ORDER BY DatePosted DESC");
+            $active_query->bind_param("i", $communityID);
+            $active_query->execute();
+            $active_result = $active_query->get_result();
+
+            if ($active_result->num_rows > 0) {
+                while ($task = $active_result->fetch_assoc()) {
+                    echo "<div style='border:1px solid #000; padding:10px; margin-bottom:10px;'>";
+                    echo "<h3>" . htmlspecialchars($task['Title']) . "</h3>";
+                    echo "<p><strong>Category:</strong> " . htmlspecialchars($task['Category']) . "</p>";
+                    echo "<p><strong>Location Type:</strong> " . htmlspecialchars($task['LocationType']) . "</p>";
+                    echo "<p><strong>Price:</strong> ₱" . number_format($task['Price'], 2) . "</p>";
+                    echo "<p><strong>Status:</strong> " . htmlspecialchars($task['Status']) . "</p>";
+
+                    // Dropdown for task actions
+                    echo "<form action='update_task.php' method='POST'>";
+                    echo "<input type='hidden' name='task_id' value='" . $task['TaskID'] . "'>";
+                    echo "<select name='task_status'>";
+                    echo "<option value='Open'" . ($task['Status'] == 'Open' ? ' selected' : '') . ">Open</option>";
+                    echo "<option value='Ongoing'" . ($task['Status'] == 'Ongoing' ? ' selected' : '') . ">Ongoing</option>";
+                    echo "<option value='Closed'" . ($task['Status'] == 'Closed' ? ' selected' : '') . ">Closed</option>";
+                    echo "</select>";
+
+                    // Action buttons: Edit, Delete, Mark as Done
+                    // echo "<button type='submit' name='update_task'>Update</button>";
+                    echo "<a href='edit_task.php?task_id=" . $task['TaskID'] . "'>Edit</a> | ";
+                    echo "<a href='delete_task.php?task_id=" . $task['TaskID'] . "' onclick='return confirm(\"Are you sure you want to delete this task?\")'>Delete</a>";
+                    echo "</form>";
+
+                    echo "</div>";
+                }
             } else {
-                $timeAgo = "$minutesAgo minutes ago";
+                echo "<p>No active posts found.</p>";
             }
+            $active_query->close();
         ?>
 
-        <div class="task-card2" onclick="openModal(<?= $row['TaskID'] ?>)">
-            <h3><?= htmlspecialchars($row['Title']) ?></h3>
-            <p>Location Type: <?= htmlspecialchars($row['LocationType']) ?></p>
-            <p>Date Posted: <?= htmlspecialchars($row['DatePosted']) ?> (<?= $timeAgo ?>)</p>
-            <p>Price: ₱<?= number_format($row['Price'], 2) ?></p>
-            <p>Comments: <?= $row['CommentCount'] ?></p>
-        </div>
 
-        <?php endwhile; ?>
+        <!-- ------------------------------PREVIOUS POST------------------------------ -->
+        <h2>Previous Posts</h2>
+        <?php
+            $previous_query = $connection->prepare("SELECT * FROM tasks WHERE CommunityID = ? AND Status = 'Closed' ORDER BY DatePosted DESC");
+            $previous_query->bind_param("i", $communityID);
+            $previous_query->execute();
+            $previous_result = $previous_query->get_result();
 
-        <!-- Modal after click sa post-->
-        <div id="taskModal" class="modal2" onclick="closeModal()">
-            <div class="modal-content2" onclick="event.stopPropagation()">
-                <h3>Task Details</h3>
-                <p>This modal is currently empty. You can load task details here later.</p>
-                <button onclick="closeModal()">Close</button>
-            </div>
-        </div>
-        
-        <!-- ------------------------------JAVASCRIPT--------------------------------> 
-        <script>
-            // ------------------------------CREATE POST------------------------------
-            const openModalBtn = document.getElementById('openModalBtn');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const taskModal = document.getElementById('create-post-modal');
-
-            openModalBtn.addEventListener('click', () => {
-                taskModal.style.display = 'flex';
-            });
-
-            closeModalBtn.addEventListener('click', () => {
-                taskModal.style.display = 'none';
-            });
-
-            window.addEventListener('click', (e) => {
-                if (e.target === taskModal) {
-                    taskModal.style.display = 'none';
+            if ($previous_result->num_rows > 0) {
+                while ($task = $previous_result->fetch_assoc()) {
+                    echo "<div style='border:1px solid #aaa; padding:10px; margin-bottom:10px; background:#f0f0f0;'>";
+                    echo "<h3>" . htmlspecialchars($task['Title']) . "</h3>";
+                    echo "<p><strong>Category:</strong> " . htmlspecialchars($task['Category']) . "</p>";
+                    echo "<p><strong>Completion Date:</strong> " . htmlspecialchars($task['CompletionDate']) . "</p>";
+                    echo "<p><strong>Price:</strong> ₱" . number_format($task['Price'], 2) . "</p>";
+                    echo "<p><strong>Status:</strong> " . htmlspecialchars($task['Status']) . "</p>";
+                    echo "</div>";
                 }
-            });
-
-            // ------------------------------VIEW POST------------------------------
-            function openModal(taskID) {
-                document.getElementById('taskModal').style.display = 'flex';
+            } else {
+                echo "<p>No previous posts found.</p>";
             }
+            $previous_query->close();
+        ?>
 
-            function closeModal() {
-                document.getElementById('taskModal').style.display = 'none';
+        
+        <a href="logout.php">Logout</a>
+
+        <?php
+        if (isset($_POST['create_task'])) {
+            $title = $_POST['title'];
+            $description = $_POST['description'];
+            $locationType = $_POST['location_type'];
+            $location = $_POST['location'] ?? null;
+            $category = $_POST['category'];
+            $completionDate = $_POST['completion_date'] ?: null;
+            $price = $_POST['price'];
+            $notes = $_POST['notes'];
+            $status = 'Open';
+
+            $stmt = $connection->prepare("INSERT INTO tasks (CommunityID, Title, Description, LocationType, Location, Category, CompletionDate, Price, Notes, Status) 
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("issssssdss", $communityID, $title, $description, $locationType, $location, $category, $completionDate, $price, $notes, $status);
+
+            if ($stmt->execute()) {
+                echo "<script>alert('Task posted successfully!'); window.location.href = 'comm_dashboard.php';</script>";
+            } else {
+                echo "Error: " . $stmt->error;
             }
-        </script>
+            $stmt->close();
+        }
+        ?>
+
     </body>
 </html>
