@@ -11,7 +11,7 @@
     TO-DO List:
     1. Buhat create task modal (done)
     2. buhat view task modal (mark as done, edit, delete, comment, hire)
-    3. butang previous posts
+    3. butang previous posts (done)
     4. butang sa profile (active posts, previous posts, total task posted)
  -->
 
@@ -124,6 +124,20 @@
                 <label>Category:</label>
                 <input type="text" name="category" required><br>
 
+                <label>Estimated Duration:</label>
+                <select name="estimated_duration" required>
+                    <option value="less than 10 mins">less than 10mins</option>
+                    <option value="10 mins">10 mins</option>
+                    <option value="30 mins">30 mins</option>
+                    <option value="1 hour">1 hour</option>
+                    <option value="2 hours">2 hours</option>
+                    <option value="4 hours">4 hours</option>
+                    <option value="8 hours">8 hours</option>
+                    <option value="1 day">1 day</option>
+                    <option value="2 days">2 days</option>
+                    <option value="1 week">1 week</option>
+                </select><br>
+
                 <label>Price:</label>
                 <input type="number" name="price" step="0.01" required><br>
 
@@ -178,6 +192,7 @@
                                 data-price='" . $task['Price'] . "'
                                 data-notes='" . htmlspecialchars($task['Notes']) . "'
                                 data-status='" . $task['Status'] . "'
+                                data-estimatedduration='" . htmlspecialchars($task['EstimatedDuration']) . "'
                                 onclick='openTaskModal(this)'>
                                 <h3>" . htmlspecialchars($task['Title']) . "</h3>
                                 <p><strong>Location Type:</strong> " . htmlspecialchars($task['LocationType']) . "</p>
@@ -230,6 +245,7 @@
                 <p><strong>Location:</strong> <span id="modalLocation"></span></p>
                 <p><strong>Completion Date:</strong> <span id="modalCompletionDate"></span></p>
                 <p><strong>Category:</strong> <span id="modalCategory"></span></p>
+                <p><strong>Estimated Duration:</strong> <span id="modalEstimatedDuration"></span></p>
                 <!-- <p><strong>Location Type:</strong> <span id="modalLocationType"></span></p> -->
                 <p><strong>Price:</strong> ₱<span id="modalPrice"></span></p>
                 <p><strong>Description:</strong> <span id="modalDescription"></span></p>
@@ -270,29 +286,34 @@
 
         <!-- ------------------------------OTHERS------------------------------ -->
         <?php
-        if (isset($_POST['create_task'])) {
-            $title = $_POST['title'];
-            $description = $_POST['description'];
-            $locationType = $_POST['location_type'];
-            $location = $_POST['location'] ?? null;
-            $category = $_POST['category'];
-            $completionDate = $_POST['completion_date'] ?: null;
-            $price = $_POST['price'];
-            $notes = $_POST['notes'];
-            $status = 'Open';
+            if (isset($_POST['create_task'])) {
+                $title = $_POST['title'];
+                $description = $_POST['description'];
+                $locationType = $_POST['location_type'];
+                $location = $_POST['location'] ?? null;
+                $category = $_POST['category'];
+                $completionDate = $_POST['completion_date'] ?: null;
+                $estimatedDuration = $_POST['estimated_duration'];
+                $price = $_POST['price'];
+                $notes = $_POST['notes'];
+                $status = 'Open';
 
-            $stmt = $connection->prepare("INSERT INTO tasks (CommunityID, Title, Description, LocationType, Location, Category, CompletionDate, Price, Notes, Status) 
-                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("issssssdss", $communityID, $title, $description, $locationType, $location, $category, $completionDate, $price, $notes, $status);
+                $stmt = $connection->prepare("INSERT INTO tasks 
+                    (CommunityID, Title, Description, LocationType, Location, Category, CompletionDate, EstimatedDuration, Price, Notes, Status) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-            if ($stmt->execute()) {
-                echo "<script>alert('Task posted successfully!'); window.location.href = 'comm_dashboard.php';</script>";
-            } else {
-                echo "Error: " . $stmt->error;
+                $stmt->bind_param("isssssssdss", $communityID, $title, $description, $locationType, $location, $category, $completionDate, $estimatedDuration, $price, $notes, $status);
+
+                if ($stmt->execute()) {
+                    echo "<script>alert('Task posted successfully!'); window.location.href = 'comm_dashboard.php';</script>";
+                } else {
+                    echo "Error: " . $stmt->error;
+                }
+
+                $stmt->close();
             }
-            $stmt->close();
-        }
         ?>
+
         <script>
             function openTaskModal(taskElement) {
                 // Get task details from the clicked task box
@@ -302,6 +323,7 @@
                 var locationType = taskElement.getAttribute('data-locationtype');
                 var location = taskElement.getAttribute('data-location');
                 var category = taskElement.getAttribute('data-category');
+                var estimatedDuration = taskElement.getAttribute("data-estimatedduration");
                 var completionDate = taskElement.getAttribute('data-completiondate');
                 var price = taskElement.getAttribute('data-price');
                 var notes = taskElement.getAttribute('data-notes');
@@ -310,6 +332,7 @@
                 // Set task details into the modal
                 document.getElementById('modalTitle').innerText = title;
                 document.getElementById('modalCategory').innerText = category;
+                document.getElementById("modalEstimatedDuration").innerText = estimatedDuration;
                 // document.getElementById('modalLocationType').innerText = locationType;
                 document.getElementById('modalLocation').innerText = location;
                 document.getElementById('modalCompletionDate').innerText = completionDate;

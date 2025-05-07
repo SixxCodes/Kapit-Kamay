@@ -52,6 +52,22 @@
             <label for="category">Category</label>
             <input type="text" id="category" name="category" value="<?php echo htmlspecialchars($task['Category']); ?>"><br><br>
 
+            <label for="estimated_duration">Estimated Duration</label>
+            <select id="estimated_duration" name="estimated_duration" required>
+                <?php
+                    $durations = [
+                        'less than 10 mins', '10 mins', '30 mins', '1 hour',
+                        '2 hours', '4 hours', '8 hours', '1 day',
+                        '2 days', '1 week'
+                    ];
+                    foreach ($durations as $duration) {
+                        $selected = ($task['EstimatedDuration'] === $duration) ? 'selected' : '';
+                        echo "<option value=\"$duration\" $selected>$duration</option>";
+                    }
+                ?>
+            </select><br><br>
+
+
             <label for="price">Price</label>
             <input type="number" id="price" name="price" value="<?php echo $task['Price']; ?>" required><br><br>
 

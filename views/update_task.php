@@ -29,15 +29,16 @@
         $category = $_POST['category'];
         $price = $_POST['price'];
         $location = $_POST['location'];
-        $location_type = $_POST['location_type']; // <-- fixed variable name
+        $location_type = $_POST['location_type'];
         $completion_date = $_POST['completion_date'];
         $notes = $_POST['notes'];
+        $estimated_duration = $_POST['estimated_duration']; // <-- It's a string (e.g., '1 hour')
 
-        // Update all fields including CompletionDate and Notes
+        // Update all fields including EstimatedDuration
         $stmt = $connection->prepare("UPDATE tasks 
-            SET Title = ?, LocationType = ?, Location = ?, Category = ?, Price = ?, Description = ?, CompletionDate = ?, Notes = ? 
+            SET Title = ?, LocationType = ?, Location = ?, Category = ?, Price = ?, Description = ?, CompletionDate = ?, Notes = ?, EstimatedDuration = ? 
             WHERE TaskID = ?");
-        $stmt->bind_param("sssssdssi", $title, $location_type, $location, $category, $price, $description, $completion_date, $notes, $task_id);
+        $stmt->bind_param("ssssdssssi", $title, $location_type, $location, $category, $price, $description, $completion_date, $notes, $estimated_duration, $task_id);
 
         if ($stmt->execute()) {
             header("Location: comm_dashboard.php?success=Task updated");
