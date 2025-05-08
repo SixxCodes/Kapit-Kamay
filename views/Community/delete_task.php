@@ -1,6 +1,6 @@
 <?php
     session_start();
-    include_once('../includes/mysqlconnection.php');
+    include_once('../../includes/mysqlconnection.php');
 
     if (!isset($_SESSION['login_email']) || $_SESSION['role'] !== 'Community') {
         echo "Unauthorized access.";

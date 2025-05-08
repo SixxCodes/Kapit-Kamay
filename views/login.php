@@ -22,9 +22,9 @@ if(isset($_POST['login-btn'])){
                 $_SESSION['role'] = $row['Role'];
             
                 if ($row['Role'] == 'Student') {
-                    header("Location: stud_dashboard.php");
+                    header("Location: Student/stud_dashboard.php");
                 } elseif ($row['Role'] == 'Community') {
-                    header("Location: comm_dashboard.php");
+                    header("Location: Community/comm_dashboard.php");
                 }
                 exit();
             } else {

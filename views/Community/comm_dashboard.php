@@ -17,7 +17,7 @@
 
  <?php
     session_start();
-    include_once('../includes/mysqlconnection.php'); // connect ni sa database
+    include_once('../../includes/mysqlconnection.php'); // connect ni sa database
 
     // check if user: logged in, role: Community
     if (!isset($_SESSION['login_email']) || $_SESSION['role'] !== 'Community') {
@@ -29,12 +29,17 @@
     $email = $_SESSION['login_email'];
 
     // Get Community User ID 
-    $stmt = $connection->prepare("SELECT UserID, FirstName, LastName FROM users WHERE Email = ?");
+    $stmt = $connection->prepare("SELECT UserID, FirstName, LastName, Email, Role, TrustPoints, ProfilePicture FROM users WHERE Email = ?");
+
     $stmt->bind_param("s", $email);
     $stmt->execute();
-    $stmt->bind_result($communityID, $firstName, $lastName);
-    $stmt->fetch();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
     $stmt->close();
+
+    $communityID = $user['UserID'];
+    $firstName = $user['FirstName'];
+    $lastName = $user['LastName'];
 
     // pag wlay match
     if (!$communityID) {
@@ -48,55 +53,52 @@
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Homepage</title>
+        <title>Community Dashboard</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>/* Modal styles */
-            .modal {
-                display: none; /* Hidden sa */
-                position: fixed; 
-                z-index: 1; 
-                left: 0;
-                top: 0;
-                width: 100%; 
-                height: 100%; 
-                overflow: auto; /* Enable scroll ug kailangan */
-                background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
-            }
-
-            /* Modal content */
-            .modal-content {
-                background-color: #fefefe;
-                margin: 15% auto;
-                padding: 20px;
-                border: 1px solid #888;
-                width: 80%;
-                max-width: 500px;
-            }
-
-            /* close button */
-            .close {
-                color: #aaa;
-                font-size: 28px;
-                font-weight: bold;
-                position: absolute;
-                top: 10px;
-                right: 25px;
-            }
-
-            .close:hover,
-            .close:focus {
-                color: black;
-                text-decoration: none;
-                cursor: pointer;
-            }
-        </style>
+        <link rel="stylesheet" href="comm_style.css">
     </head>
     <body>
 
-        <!-- ------------------------------PROFILE SUMMARY------------------------------ -->
+        <!-- ------------------------------PROFILE------------------------------ -->
         <h1>Kapit-Kamay</h1>
         <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
 
+        <!-- -------------------PROFILE (ICON)------------------- -->
+        <!-- USER INFO MODAL -->
+        <div id="userModal" class="userModal">
+            <div class="userModal-content">
+                <form action="upload_profile.php" method="POST" enctype="multipart/form-data">
+                    <label>Change Profile Picture:</label>
+                    <input type="file" name="profile_picture" accept="image/*" required>
+                    <button type="submit">Upload</button>
+                </form>
+                
+                <?php
+                    $profileSrc = !empty($user['ProfilePicture']) ? $user['ProfilePicture'] : "../assets/default-avatar.png";
+                ?>
+
+                <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
+                    alt="Profile Picture" 
+                    style="width:100px; height:100px; border-radius:50%;">
+
+                <span class="userClose" onclick="closeUserModal()">&times;</span>
+                <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
+                <!-- <p><strong>User ID:</strong> <?php echo htmlspecialchars($user['UserID']); ?></p> -->
+                <p><strong>First Name:</strong> <?php echo htmlspecialchars($user['FirstName']); ?></p>
+                <p><strong>Last Name:</strong> <?php echo htmlspecialchars($user['LastName']); ?></p>
+                <p><strong>Email:</strong> <?php echo htmlspecialchars($user['Email']); ?></p>
+                <p><strong>Role:</strong> <?php echo htmlspecialchars($user['Role']); ?></p>
+                <!-- <p><strong>Trust Points:</strong> <?php echo htmlspecialchars($user['TrustPoints']); ?></p> -->
+            </div>
+        </div>
+
+        <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
+            alt="Profile Picture" 
+            id="userIcon" 
+            style="width:100px; height:100px; border-radius:50%; cursor: pointer;"
+            onclick="openUserModal()">
+
+        <!-- -------------------COUNT TASKS------------------- -->
         <?php
             // Step 1: Count Active Tasks 
             $stmtActive = $connection->prepare("SELECT COUNT(*) FROM tasks WHERE CommunityID = ? AND Status = 'Open'");
@@ -219,24 +221,6 @@
 
             if ($active_result->num_rows > 0) {
                 while ($task = $active_result->fetch_assoc()) {
-                    // Calculate "time ago"
-                    $datePosted = new DateTime($task['DatePosted']);
-                    $now = new DateTime();
-                    $interval = $now->diff($datePosted);
-
-                    if ($interval->y > 0) {
-                        $timeAgo = $interval->y . " year(s) ago";
-                    } elseif ($interval->m > 0) {
-                        $timeAgo = $interval->m . " month(s) ago";
-                    } elseif ($interval->d > 0) {
-                        $timeAgo = $interval->d . " day(s) ago";
-                    } elseif ($interval->h > 0) {
-                        $timeAgo = $interval->h . " hour(s) ago";
-                    } elseif ($interval->i > 0) {
-                        $timeAgo = $interval->i . " minute(s) ago";
-                    } else {
-                        $timeAgo = "Just now";
-                    }
 
                     echo "<div class='task-box' 
                                 data-taskid='" . $task['TaskID'] . "'
@@ -248,13 +232,13 @@
                                 data-completiondate='" . $task['CompletionDate'] . "'
                                 data-price='" . $task['Price'] . "'
                                 data-notes='" . htmlspecialchars($task['Notes']) . "'
+                                data-dateposted='" . $task['DatePosted'] . "'
                                 data-status='" . $task['Status'] . "'
                                 data-estimatedduration='" . htmlspecialchars($task['EstimatedDuration']) . "'
                                 onclick='openTaskModal(this)'>
                                 <h3>" . htmlspecialchars($task['Title']) . "</h3>
                                 <p><strong>Location Type:</strong> " . htmlspecialchars($task['LocationType']) . "</p>
                                 <p><strong>Completion Date:</strong> " . htmlspecialchars($task['CompletionDate']) . "</p>
-                                <p><em>Posted: $timeAgo</em></p>
                                 <p><strong>Price:</strong> ₱" . number_format($task['Price'], 2) . "</p>
                                 
                         </div>";
@@ -294,7 +278,12 @@
         <div id="taskModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closeTaskModal()" style="color: black;">&times;</span>
-                
+                <h2>Posted by <?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
+                <p><em>Posted <span id="modalTimeAgo"></span></em></p>
+                <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
+                    alt="Profile Picture" 
+                    style="width:100px; height:100px; border-radius:50%;">
+                    
                 <!-- Task Title -->
                 <h2 id="modalTitle"></h2>
                 
@@ -306,6 +295,7 @@
                 <!-- <p><strong>Location Type:</strong> <span id="modalLocationType"></span></p> -->
                 <p><strong>Price:</strong> ₱<span id="modalPrice"></span></p>
                 <p><strong>Description:</strong> <span id="modalDescription"></span></p>
+                <p><strong>Contact via Email:</strong></strong> <?php echo htmlspecialchars($user['Email']); ?></p>
                 <p><strong>Notes:</strong> <span id="modalNotes"></span></p>
                 <!-- <p><strong>Status:</strong> <span id="modalStatus"></span></p> -->
                 
@@ -339,86 +329,10 @@
         ?>
         
         <!-- ------------------------------LOG OUT------------------------------ -->
-        <a href="logout.php">Logout</a>
+        <a href="../logout.php">Logout</a>
 
         <!-- ------------------------------JAVASCRIPT------------------------------ -->
-        <script>
-            function openTaskModal(taskElement) {
-                // ------------------------------FOR VIEW POST------------------------------
-                // Get task details sa gi-click lang nga task box
-                var taskId = taskElement.getAttribute('data-taskid');
-                var title = taskElement.getAttribute('data-title');
-                var description = taskElement.getAttribute('data-description');
-                var locationType = taskElement.getAttribute('data-locationtype');
-                var location = taskElement.getAttribute('data-location');
-                var category = taskElement.getAttribute('data-category');
-                var estimatedDuration = taskElement.getAttribute("data-estimatedduration");
-                var completionDate = taskElement.getAttribute('data-completiondate');
-                var price = taskElement.getAttribute('data-price');
-                var notes = taskElement.getAttribute('data-notes');
-                var status = taskElement.getAttribute('data-status');
-                
-                // Set task details into the modal
-                document.getElementById('modalTitle').innerText = title;
-                document.getElementById('modalCategory').innerText = category;
-                document.getElementById("modalEstimatedDuration").innerText = estimatedDuration;
-                // document.getElementById('modalLocationType').innerText = locationType;
-                document.getElementById('modalLocation').innerText = location;
-                document.getElementById('modalCompletionDate').innerText = completionDate;
-                document.getElementById('modalPrice').innerText = price;
-                document.getElementById('modalNotes').innerText = notes;
-                // document.getElementById('modalStatus').innerText = status;
-                document.getElementById("modalDescription").textContent = description;
-                
-                // Set hidden input field with task ID
-                document.getElementById('modalTaskID').value = taskId;
-                
-                // Set edit and delete links with  task ID
-                document.getElementById('editTaskLink').href = 'edit_task.php?task_id=' + taskId;
-                document.getElementById('deleteTaskLink').href = 'delete_task.php?task_id=' + taskId;
+        <script src="comm_script.js"></script>
 
-                // Set current task status in the dropdown
-                var statusDropdown = document.getElementById('taskStatusDropdown');
-                for (var i = 0; i < statusDropdown.options.length; i++) {
-                    if (statusDropdown.options[i].value === status) {
-                        statusDropdown.selectedIndex = i;
-                        break;
-                    }
-                }
-
-                // Show modal
-                document.getElementById('taskModal').style.display = 'block';
-            }
-
-            function closeTaskModal() {
-                // Hide modal
-                document.getElementById('taskModal').style.display = 'none';
-            }
-
-            // ------------------------------FOR SWITCH STATUS------------------------------
-            function updateTaskStatus(selectElement) {
-            const status = selectElement.value;
-            const taskID = document.getElementById('modalTaskID').value;
-
-            // Send AJAX request
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", "update_task.php", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    alert("Task status updated to " + status);
-                    document.getElementById('modalStatus').innerText = status;
-
-                    // closeTaskModal();
-                    // location.reload();
-                } else {
-                    alert("Error updating task status.");
-                }
-            };
-
-            xhr.send("task_id=" + encodeURIComponent(taskID) + "&task_status=" + encodeURIComponent(status));
-        }
-        </script>
     </body>
 </html>

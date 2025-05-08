@@ -1,6 +1,6 @@
 <?php
     session_start();
-    include_once('../includes/mysqlconnection.php');
+    include_once('../../includes/mysqlconnection.php');
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
