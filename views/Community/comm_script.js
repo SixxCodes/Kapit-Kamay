@@ -112,3 +112,19 @@ window.onclick = function(event) {
         modal.style.display = "none";
     }
 }
+
+// ------------------------------FILTER TASKS------------------------------
+function filterMyTasks() {
+    const input = document.getElementById('taskSearchBar').value.toLowerCase();
+    const tasks = document.querySelectorAll('.task-box');
+
+    tasks.forEach(task => {
+        const title = task.getAttribute('data-title').toLowerCase();
+        // Only show tasks that contain the keyword
+        if (title.includes(input)) {
+            task.style.display = 'block';
+        } else {
+            task.style.display = 'none';
+        }
+    });
+}

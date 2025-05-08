@@ -59,6 +59,8 @@
     </head>
     <body>
 
+        <input type="text" id="taskSearchBar" placeholder="Search your tasks..." onkeyup="filterMyTasks()" style="padding: 8px; width: 100%; max-width: 400px; margin-bottom: 20px;">
+    
         <!-- ------------------------------PROFILE------------------------------ -->
         <h1>Kapit-Kamay</h1>
         <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
