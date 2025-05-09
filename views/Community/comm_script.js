@@ -13,7 +13,7 @@ function openTaskModal(taskElement) {
     var notes = taskElement.getAttribute('data-notes');
     var status = taskElement.getAttribute('data-status');
     
-    // Set task details into the modal
+    // task details sa modal
     document.getElementById('modalTitle').innerText = title;
     document.getElementById('modalCategory').innerText = category;
     document.getElementById("modalEstimatedDuration").innerText = estimatedDuration;
@@ -25,15 +25,13 @@ function openTaskModal(taskElement) {
     // document.getElementById('modalStatus').innerText = status;
     document.getElementById("modalDescription").textContent = description;
     
-    // Set hidden input field with task ID
     document.getElementById('modalTaskID').value = taskId;
     fetchComments(taskId);
     
-    // Set edit and delete links with  task ID
     document.getElementById('editTaskLink').href = 'edit_task.php?task_id=' + taskId;
     document.getElementById('deleteTaskLink').href = 'delete_task.php?task_id=' + taskId;
 
-    // Set current task status in the dropdown
+    // current task status sa dropdown
     var statusDropdown = document.getElementById('taskStatusDropdown');
     for (var i = 0; i < statusDropdown.options.length; i++) {
         if (statusDropdown.options[i].value === status) {
@@ -131,13 +129,7 @@ function filterMyTasks() {
 }
 
 
-
-
-
-
-
-
-
+// ------------------------------COMMENTS------------------------------
 function fetchComments(taskId) {
     // Use AJAX to fetch comments for the specific task
     fetch(`fetch_comments.php?task_id=${taskId}`)
@@ -167,18 +159,6 @@ function acceptComment(commentID) {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 function openProfileModal(comment) {
     // Populate the modal with the student's details
     document.getElementById('modalProfilePicture').src = comment.ProfilePicture 
@@ -198,10 +178,7 @@ function closeProfileModal() {
     document.getElementById('profileModal').style.display = 'none';
 }
 
-
-
-
-
+// ------------------------------FOR COUNT TIME AGO------------------------------
 function getTimeAgo(dateString) {
     const now = new Date();
     const posted = new Date(dateString);

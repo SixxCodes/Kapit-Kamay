@@ -10,9 +10,17 @@
 <!-- 
     TO-DO List:
     1. Buhat create task modal (done)
-    2. buhat view task modal (mark as done, edit, delete, comment, hire)
+    2. buhat view task modal (mark as done, edit, delete, hire)
     3. butang previous posts (done)
     4. butang sa profile (active posts, previous posts, total task posted) (done)
+
+    Community:
+    3. iuban sa dropdown ang edit ug delete task 1
+    4. estimated duration: options lahion 1
+    8. total comments sa active post
+    11. notifications sa mga nag-apply
+    15. filter category
+    18. sorting date ascending and descending, highest to lowest, lowest to highest price
  -->
 
  <?php
@@ -365,19 +373,20 @@
                 
             </div>
         </div>
-                    <!-- Profile Modal -->
-<div id="profileModal" class="modal" style="display: none;">
-    <div class="modal-content" style="padding: 20px; border-radius: 10px; max-width: 400px; margin: auto;">
-        <span class="close" onclick="closeProfileModal()" style="cursor: pointer; float: right; font-size: 20px;">&times;</span>
-        <div style="text-align: center;">
-            <img id="modalProfilePicture" src="" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px;">
-            <h2 id="modalFullName"></h2>
-            <p><strong>Email:</strong> <span id="modalEmail"></span></p>
-            <p><strong>Role:</strong> <span id="modalRole"></span></p>
-            <p><strong>Trust Points:</strong> <span id="modalTrustPoints"></span></p>
+        
+        <!-- Profile Modal sa student na nag-comment-->
+        <div id="profileModal" class="modal" style="display: none;">
+            <div class="modal-content" style="padding: 20px; border-radius: 10px; max-width: 400px; margin: auto;">
+                <span class="close" onclick="closeProfileModal()" style="cursor: pointer; float: right; font-size: 20px;">&times;</span>
+                <div style="text-align: center;">
+                    <img id="modalProfilePicture" src="" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px;">
+                    <h2 id="modalFullName"></h2>
+                    <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+                    <p><strong>Role:</strong> <span id="modalRole"></span></p>
+                    <p><strong>Trust Points:</strong> <span id="modalTrustPoints"></span></p>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
         <?php
             // Get tasks gikan ani nga community user (dapat dli niya makita ang post sa uban nga community user)
             $task_query = $connection->prepare("SELECT * FROM tasks WHERE CommunityID = ? ORDER BY DatePosted DESC");

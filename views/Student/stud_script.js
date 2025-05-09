@@ -13,7 +13,7 @@ function openTaskModal(taskElement) {
     var notes = taskElement.getAttribute('data-notes');
     var status = taskElement.getAttribute('data-status');
     
-    // Set task details into the modal
+    // task details modal
     document.getElementById('modalTitle').innerText = title;
     document.getElementById('modalCategory').innerText = category;
     document.getElementById("modalEstimatedDuration").innerText = estimatedDuration;
@@ -25,14 +25,12 @@ function openTaskModal(taskElement) {
     // document.getElementById('modalStatus').innerText = status;
     document.getElementById("modalDescription").textContent = description;
     
-    // Set hidden input field with task ID
     document.getElementById('modalTaskID').value = taskId;
     
-    // Set edit and delete links with  task ID
     document.getElementById('editTaskLink').href = 'edit_task.php?task_id=' + taskId;
     document.getElementById('deleteTaskLink').href = 'delete_task.php?task_id=' + taskId;
 
-    // Set current task status in the dropdown
+    // current task status in the dropdown
     var statusDropdown = document.getElementById('taskStatusDropdown');
     for (var i = 0; i < statusDropdown.options.length; i++) {
         if (statusDropdown.options[i].value === status) {
@@ -105,14 +103,13 @@ function closeUserModal() {
     document.getElementById('userModal').style.display = 'none';
 }
 
-// Optional: Close when clicking outside
+// Close when clicking outside for user
 window.onclick = function(event) {
     const modal = document.getElementById('userModal');
     if (event.target === modal) {
         modal.style.display = "none";
     }
 }
-
 
 // Close modals if clicked outside
 window.onclick = function(event) {
@@ -165,3 +162,38 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+function toggleNotificationModal() {
+    const modal = document.getElementById("notificationModal");
+    modal.style.display = modal.style.display === "block" ? "none" : "block";
+
+    // i-hide ang red ! pag gi-open ang notif
+    if (modal.style.display === "block") {
+        document.getElementById("notificationBadge").style.display = "none";
+
+        localStorage.setItem("notificationsViewed", "true");
+    }
+}
+
+function showNotificationDetails(notification) {
+    // modal for task details
+    const modalContent = `
+        <h4>${notification.Title}</h4>
+        <p><strong>Posted By:</strong> ${notification.FirstName} ${notification.LastName}</p>
+        <p><strong>Location:</strong> ${notification.Location}</p>
+        <p><strong>Email:</strong> ${notification.Email}</p>
+        <p><strong>Description:</strong> ${notification.Description}</p>
+        <p><strong>Notes:</strong> ${notification.Notes}</p>
+        <button onclick="goBackToNotificationList()" style="margin-top: 10px; background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Back to List</button>
+    `;
+
+    const notificationModal = document.getElementById("notificationModal");
+    notificationModal.innerHTML = modalContent;
+}
+
+// Restore the red badge on page refresh if notifications are not viewed
+document.addEventListener("DOMContentLoaded", function () {
+    const notificationsViewed = localStorage.getItem("notificationsViewed");
+    if (!notificationsViewed) {
+        document.getElementById("notificationBadge").style.display = "flex";
+    }
+});

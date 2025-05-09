@@ -1,4 +1,4 @@
-/* User Modal styles */
+/* --------------------------------------User Modal styles-------------------------------------- */
 .userModal {
     display: none;
     position: fixed;
@@ -27,22 +27,7 @@
     cursor: pointer;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* --------------------------------------For task box-------------------------------------- */
 .task-box {
     border: 1px solid #aaa;
     padding: 15px;
@@ -85,4 +70,30 @@
 }
 .close:hover {
     color: #000;
+}
+
+/* --------------------------------------For notifs-------------------------------------- */
+#notificationButton img {
+    width: 30px;
+    height: 30px;
+}
+
+#notificationModal h4 {
+    margin: 0 0 10px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#notificationModal ul li {
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+}
+
+#notificationModal ul li:last-child {
+    border-bottom: none;
+}
+
+#notificationModal {
+    max-height: 300px;
+    overflow-y: auto;
 }
