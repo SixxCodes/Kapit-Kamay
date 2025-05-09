@@ -350,7 +350,7 @@
                                     <p><em>Posted on <?php echo htmlspecialchars($comment['DatePosted']); ?></em></p>
                                     <p><strong>Trust Points:</strong> <?php echo htmlspecialchars($comment['TrustPoints']); ?></p>
                                     <p><?php echo htmlspecialchars($comment['Content']); ?></p>
-                                    <button onclick="acceptComment(<?php echo $comment['CommentID']; ?>)">Accept</button>
+                                    <button onclick="acceptComment(<?php echo $comment['CommentID']; ?>)">Accept</button><button onclick="acceptComment(<?php echo $comment['CommentID']; ?>)">Accept</button>
                                 </div>
                                 <?php
                             }

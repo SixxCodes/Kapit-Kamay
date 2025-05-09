@@ -160,12 +160,14 @@ function acceptComment(commentID) {
         })
         .then(response => response.text())
         .then(data => {
-            alert(data);
+            alert(data); // Show success or error message
             location.reload(); // Reload the page to reflect changes
         })
         .catch(error => console.error('Error:', error));
     }
 }
+
+
 
 
 
@@ -195,3 +197,29 @@ function closeProfileModal() {
     // Hide the modal
     document.getElementById('profileModal').style.display = 'none';
 }
+
+
+
+
+
+function getTimeAgo(dateString) {
+    const now = new Date();
+    const posted = new Date(dateString);
+    const diff = Math.floor((now - posted) / 1000); // difference in seconds
+
+    if (diff < 60) return "Posted just now";
+    if (diff < 3600) return `Posted ${Math.floor(diff / 60)} minute(s) ago`;
+    if (diff < 86400) return `Posted ${Math.floor(diff / 3600)} hour(s) ago`;
+    if (diff < 604800) return `Posted ${Math.floor(diff / 86400)} day(s) ago`;
+    
+    return `Posted on ${posted.toLocaleDateString()}`;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('.posted-time').forEach(function (el) {
+        const datePosted = el.getAttribute('data-dateposted');
+        if (datePosted) {
+            el.textContent = getTimeAgo(datePosted);
+        }
+    });
+});

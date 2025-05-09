@@ -25,10 +25,14 @@ if (isset($_GET['task_id'])) {
 
             // Display the comment
             echo "<div class='comment-box' style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>";
+
+            // Profile picture and name
             echo "<div style='display: flex; align-items: center; margin-bottom: 10px;'>";
             echo "<img src='" . $profilePicture . "' alt='Profile Picture' style='width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; cursor: pointer;' onclick='openProfileModal(" . json_encode($comment) . ")'>";
             echo "<p><strong>" . htmlspecialchars($comment['FirstName'] . " " . $comment['LastName']) . "</strong></p>";
             echo "</div>";
+
+            // Comment details
             echo "<p><em>Posted on " . htmlspecialchars($comment['DatePosted']) . "</em></p>";
             echo "<p><strong>Rating:</strong> ";
             for ($i = 1; $i <= 5; $i++) {
@@ -36,7 +40,15 @@ if (isset($_GET['task_id'])) {
             }
             echo "</p>";
             echo "<p>" . htmlspecialchars($comment['Content']) . "</p>";
-            echo "<button onclick='acceptComment(" . $comment['CommentID'] . ")'>Accept</button>";
+
+            // Check if the student is already accepted
+            if ($comment['IsAccepted'] == 1) {
+                echo "<p style='color: green; font-weight: bold;'>Student Accepted</p>";
+                echo "<button disabled style='background-color: gray; cursor: not-allowed;'>Accepted</button>";
+            } else {
+                echo "<button onclick='acceptComment(" . $comment['CommentID'] . ")'>Accept</button>";
+            }
+
             echo "</div>";
         }
     } else {
