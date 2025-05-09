@@ -321,11 +321,63 @@
                     <!-- Edit Task and Delete Task actions -->
                     <a href="edit_task.php?task_id=" id="editTaskLink">Edit Task</a> | 
                     <a href="delete_task.php?task_id=" id="deleteTaskLink" onclick="return confirm('Are you sure you want to delete this task?')">Delete Task</a>
-                    
                 </div>
+
+                <!-- ------------------------------COMMENTS SECTION------------------------------ -->
+                <h3>Comments</h3>
+                <div id="commentsSection">
+                    <?php
+                    // Fetch comments for the specific task
+                    if (isset($_GET['task_id'])) {
+                        $taskId = (int)$_GET['task_id'];
+
+                        $comments_query = $connection->prepare("
+                            SELECT c.*, u.FirstName, u.LastName, u.TrustPoints 
+                            FROM comments c
+                            JOIN users u ON c.StudentID = u.UserID
+                            WHERE c.TaskID = ?
+                            ORDER BY c.DatePosted DESC
+                        ");
+                        $comments_query->bind_param("i", $taskId);
+                        $comments_query->execute();
+                        $comments_result = $comments_query->get_result();
+
+                        if ($comments_result->num_rows > 0) {
+                            while ($comment = $comments_result->fetch_assoc()) {
+                                ?>
+                                <div class="comment-box" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+                                    <p><strong><?php echo htmlspecialchars($comment['FirstName'] . ' ' . $comment['LastName']); ?></strong></p>
+                                    <p><em>Posted on <?php echo htmlspecialchars($comment['DatePosted']); ?></em></p>
+                                    <p><strong>Trust Points:</strong> <?php echo htmlspecialchars($comment['TrustPoints']); ?></p>
+                                    <p><?php echo htmlspecialchars($comment['Content']); ?></p>
+                                    <button onclick="acceptComment(<?php echo $comment['CommentID']; ?>)">Accept</button>
+                                </div>
+                                <?php
+                            }
+                        } else {
+                            echo "<p>No comments yet.</p>";
+                        }
+                        $comments_query->close();
+                    }
+                    ?>
+                </div>
+
+                
             </div>
         </div>
-
+                    <!-- Profile Modal -->
+<div id="profileModal" class="modal" style="display: none;">
+    <div class="modal-content" style="padding: 20px; border-radius: 10px; max-width: 400px; margin: auto;">
+        <span class="close" onclick="closeProfileModal()" style="cursor: pointer; float: right; font-size: 20px;">&times;</span>
+        <div style="text-align: center;">
+            <img id="modalProfilePicture" src="" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px;">
+            <h2 id="modalFullName"></h2>
+            <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+            <p><strong>Role:</strong> <span id="modalRole"></span></p>
+            <p><strong>Trust Points:</strong> <span id="modalTrustPoints"></span></p>
+        </div>
+    </div>
+</div>
         <?php
             // Get tasks gikan ani nga community user (dapat dli niya makita ang post sa uban nga community user)
             $task_query = $connection->prepare("SELECT * FROM tasks WHERE CommunityID = ? ORDER BY DatePosted DESC");

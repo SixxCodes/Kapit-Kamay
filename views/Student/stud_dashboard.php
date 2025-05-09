@@ -159,6 +159,7 @@
                     <p><strong>Contact via Email:</strong> <?= htmlspecialchars($task['PosterEmail']) ?></p>
                     <p><strong>Notes:</strong> <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
 
+                    <!-- ------------------------------COMMENT SECTION------------------------------ -->
                     <div style="margin-top: 20px;">
                         <h3>Comments</h3>
                         <?php if ($commentResult->num_rows > 0): ?>

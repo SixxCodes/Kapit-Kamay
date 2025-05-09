@@ -27,6 +27,7 @@ function openTaskModal(taskElement) {
     
     // Set hidden input field with task ID
     document.getElementById('modalTaskID').value = taskId;
+    fetchComments(taskId);
     
     // Set edit and delete links with  task ID
     document.getElementById('editTaskLink').href = 'edit_task.php?task_id=' + taskId;
@@ -127,4 +128,70 @@ function filterMyTasks() {
             task.style.display = 'none';
         }
     });
+}
+
+
+
+
+
+
+
+
+
+function fetchComments(taskId) {
+    // Use AJAX to fetch comments for the specific task
+    fetch(`fetch_comments.php?task_id=${taskId}`)
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('commentsSection').innerHTML = data;
+        })
+        .catch(error => console.error('Error fetching comments:', error));
+}
+
+function acceptComment(commentID) {
+    if (confirm("Are you sure you want to accept this comment?")) {
+        // Send an AJAX request to accept the comment
+        fetch('accept_comment.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `comment_id=${commentID}`
+        })
+        .then(response => response.text())
+        .then(data => {
+            alert(data);
+            location.reload(); // Reload the page to reflect changes
+        })
+        .catch(error => console.error('Error:', error));
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+function openProfileModal(comment) {
+    // Populate the modal with the student's details
+    document.getElementById('modalProfilePicture').src = comment.ProfilePicture 
+        ? "../Student/" + comment.ProfilePicture 
+        : "../assets/default-avatar.png";
+    document.getElementById('modalFullName').innerText = comment.FirstName + " " + comment.LastName;
+    document.getElementById('modalEmail').innerText = comment.Email;
+    document.getElementById('modalRole').innerText = comment.Role;
+    document.getElementById('modalTrustPoints').innerText = comment.TrustPoints;
+
+    // Show the modal
+    document.getElementById('profileModal').style.display = 'block';
+}
+
+function closeProfileModal() {
+    // Hide the modal
+    document.getElementById('profileModal').style.display = 'none';
 }
