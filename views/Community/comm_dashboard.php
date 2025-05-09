@@ -58,9 +58,9 @@
         <link rel="stylesheet" href="comm_style.css">
     </head>
     <body>
-
+        <!-- ------------------------------SEARCH------------------------------ -->
         <input type="text" id="taskSearchBar" placeholder="Search your tasks..." onkeyup="filterMyTasks()" style="padding: 8px; width: 100%; max-width: 400px; margin-bottom: 20px;">
-    
+        
         <!-- ------------------------------PROFILE------------------------------ -->
         <h1>Kapit-Kamay</h1>
         <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
@@ -91,6 +91,9 @@
                 <p><strong>Email:</strong> <?php echo htmlspecialchars($user['Email']); ?></p>
                 <p><strong>Role:</strong> <?php echo htmlspecialchars($user['Role']); ?></p>
                 <!-- <p><strong>Trust Points:</strong> <?php echo htmlspecialchars($user['TrustPoints']); ?></p> -->
+                
+                <!-- ------------------------------LOG OUT------------------------------ -->
+                <a href="../logout.php">Logout</a>
             </div>
         </div>
 
@@ -318,6 +321,7 @@
                     <!-- Edit Task and Delete Task actions -->
                     <a href="edit_task.php?task_id=" id="editTaskLink">Edit Task</a> | 
                     <a href="delete_task.php?task_id=" id="deleteTaskLink" onclick="return confirm('Are you sure you want to delete this task?')">Delete Task</a>
+                    
                 </div>
             </div>
         </div>
@@ -329,9 +333,6 @@
             $task_query->execute();
             $tasks_result = $task_query->get_result();
         ?>
-        
-        <!-- ------------------------------LOG OUT------------------------------ -->
-        <a href="../logout.php">Logout</a>
 
         <!-- ------------------------------JAVASCRIPT------------------------------ -->
         <script src="comm_script.js"></script>

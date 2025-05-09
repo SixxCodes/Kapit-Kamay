@@ -113,22 +113,6 @@ window.onclick = function(event) {
     }
 }
 
-// ------------------------------FILTER TASKS------------------------------
-function filterMyTasks() {
-    const input = document.getElementById('taskSearchBar').value.toLowerCase();
-    const tasks = document.querySelectorAll('.task-box');
-
-    tasks.forEach(task => {
-        const title = task.getAttribute('data-title').toLowerCase();
-        // Only show tasks that contain the keyword
-        if (title.includes(input)) {
-            task.style.display = 'block';
-        } else {
-            task.style.display = 'none';
-        }
-    });
-}
-
 
 // Close modals if clicked outside
 window.onclick = function(event) {
@@ -140,11 +124,7 @@ window.onclick = function(event) {
     });
 }
 
-
-
-
-
-
+// ------------------------------FOR COUNT TIME AGO------------------------------
 function getTimeAgo(dateString) {
     const now = new Date();
     const posted = new Date(dateString);
@@ -164,6 +144,24 @@ document.addEventListener("DOMContentLoaded", function () {
         if (datePosted) {
             el.textContent = getTimeAgo(datePosted);
         }
+    });
+});
+
+// ------------------------------SEARCH TASKS------------------------------
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("taskSearch");
+    searchInput.addEventListener("input", function () {
+        const query = this.value.toLowerCase();
+        const taskBoxes = document.querySelectorAll(".task-box");
+
+        taskBoxes.forEach(box => {
+            const title = box.querySelector(".task-title").textContent.toLowerCase();
+            if (title.includes(query)) {
+                box.style.display = "block";
+            } else {
+                box.style.display = "none";
+            }
+        });
     });
 });
 
