@@ -159,7 +159,7 @@
             onclick="openUserModal()">
         
         <!-- ------------------------------Ongoing Tasks------------------------------ -->
-        <h3>Your Ongoing Tasks</h3>
+        
         <!-- ------------------------------ONGOING TASKS------------------------------ -->
         <?php
         // Fetch tasks where the student has been accepted and the status is Open or Ongoing
@@ -196,8 +196,36 @@ echo "<p style='color: red;'><strong>You have reached the limit of 2 ongoing tas
         $completedTasksCount = $completedTasksResult->fetch_assoc()['CompletedCount'];
         ?>
 
+        <!-- Display Trust Points, Rating, and Completed Tasks -->
+<div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 10px; border-radius: 5px; background-color: #f9f9f9;">
+    <p><strong>Trust Points:</strong> <?= htmlspecialchars($user['TrustPoints']) ?></p>
+    
+    <?php
+    // Fetch the average rating for the student
+    $ratingQuery = $connection->prepare("
+        SELECT AVG(Rating) AS avg_rating 
+        FROM taskratings 
+        WHERE StudentID = ?
+    ");
+    $ratingQuery->bind_param("i", $studentID);
+    $ratingQuery->execute();
+    $ratingResult = $ratingQuery->get_result();
+    $ratingData = $ratingResult->fetch_assoc();
+    $avgRating = round($ratingData['avg_rating']);
+    $ratingQuery->close();
+    ?>
+    
+    <p><strong>Rating:</strong>
+        <?php for ($i = 1; $i <= 5; $i++): ?>
+            <span style="color: gold;"><?= $i <= $avgRating ? "★" : "☆" ?></span>
+        <?php endfor; ?>
+    </p>
+    
+    <p><strong>Completed Tasks:</strong> <?= $completedTasksCount ?></p>
+</div>
         <!-- Display Completed Tasks Count -->
-        <p><strong>Completed task(s):</strong> <?= $completedTasksCount ?></p>
+        <!-- <p><strong>Completed task(s):</strong> <?= $completedTasksCount ?></p> -->
+        <h3>Your Ongoing Tasks</h3>
 
         <?php if ($ongoingTasksResult->num_rows > 0): ?>
             <div class="ongoing-tasks">
@@ -279,9 +307,16 @@ echo "<p style='color: red;'><strong>You have reached the limit of 2 ongoing tas
                     <h2><?= htmlspecialchars($task['Title']) ?></h2>
                     <p><strong>Posted On:</strong> <?= date("F j, Y, g:i a", strtotime($task['DatePosted'])) ?></p>
                     <p class="posted-time" data-dateposted="<?= $task['DatePosted'] ?>"></p>
-                    <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
+
+                    <!-- <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
                         alt="Profile Picture" 
-                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;"> -->
+                        <!-- Community Poster Section -->
+<img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
+    alt="Profile Picture" 
+    style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; cursor: pointer;"
+    onclick="openCommunityProfileModal('<?= htmlspecialchars($task['ProfilePicture']) ?>', '<?= htmlspecialchars($task['FirstName'] . ' ' . $task['LastName']) ?>', '<?= htmlspecialchars($task['PosterEmail']) ?>', 'Community')">
+<p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
                     <p><strong>Status:</strong> <?= htmlspecialchars($task['Status']) ?></p>
                     <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
                     <!-- <p><strong>Location Type:</strong> <?= htmlspecialchars($task['LocationType']) ?></p> -->
@@ -366,8 +401,45 @@ echo "<p style='color: red;'><strong>You have reached the limit of 2 ongoing tas
         <?php else: ?>
             <p>No active community posts available.</p>
         <?php endif; ?>
+
+
+
+
+
+
+        
+        <!-- Community Profile Modal -->
+<div id="communityProfileModal" class="modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width: 300px; z-index: 1000; padding: 20px;">
+    <span class="close" onclick="closeCommunityProfileModal()" style="cursor: pointer; float: right; font-size: 20px;">&times;</span>
+    <div style="text-align: center;">
+        <img id="communityProfilePicture" src="" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px;">
+        <h3 id="communityFullName"></h3>
+        <p><strong>Email:</strong> <span id="communityEmail"></span></p>
+        <p><strong>Role:</strong> <span id="communityRole"></span></p>
+    </div>
+</div>
         <script src="stud_script.js"></script>
         <script>
+
+function openCommunityProfileModal(profilePicture, fullName, email, role) {
+    // Populate the modal with the community poster's details
+    document.getElementById('communityProfilePicture').src = '../Community/' + profilePicture;
+    document.getElementById('communityFullName').textContent = fullName;
+    document.getElementById('communityEmail').textContent = email;
+    document.getElementById('communityRole').textContent = role;
+
+    // Show the modal
+    document.getElementById('communityProfileModal').style.display = 'block';
+}
+
+function closeCommunityProfileModal() {
+    // Hide the modal
+    document.getElementById('communityProfileModal').style.display = 'none';
+}
+
+
+
+
             document.addEventListener("DOMContentLoaded", function () {
     const notifications = <?php echo json_encode($notifications); ?>;
     const notificationBadge = document.getElementById("notificationBadge");

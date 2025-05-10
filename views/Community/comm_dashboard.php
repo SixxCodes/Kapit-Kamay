@@ -226,35 +226,42 @@
         
         <!-- ------------------------------ACTIVE POST------------------------------ -->
         <h2>Active Posts</h2>
+        
         <?php
-            $active_query = $connection->prepare("SELECT * FROM tasks WHERE CommunityID = ? AND Status IN ('Open', 'Ongoing') ORDER BY DatePosted DESC");
-            $active_query->bind_param("i", $communityID);
-            $active_query->execute();
-            $active_result = $active_query->get_result();
+$active_query = $connection->prepare("
+    SELECT t.*, 
+           (SELECT COUNT(*) FROM comments c WHERE c.TaskID = t.TaskID) AS CommentCount
+    FROM tasks t
+    WHERE t.CommunityID = ? AND t.Status IN ('Open', 'Ongoing')
+    ORDER BY t.DatePosted DESC
+");
+$active_query->bind_param("i", $communityID);
+$active_query->execute();
+$active_result = $active_query->get_result();
 
             if ($active_result->num_rows > 0) {
                 while ($task = $active_result->fetch_assoc()) {
 
                     echo "<div class='task-box' 
-                                data-taskid='" . $task['TaskID'] . "'
-                                data-title='" . htmlspecialchars($task['Title']) . "'
-                                data-description='" . htmlspecialchars($task['Description']) . "'
-                                data-locationtype='" . $task['LocationType'] . "'
-                                data-location='" . $task['Location'] . "'
-                                data-category='" . $task['Category'] . "'
-                                data-completiondate='" . $task['CompletionDate'] . "'
-                                data-price='" . $task['Price'] . "'
-                                data-notes='" . htmlspecialchars($task['Notes']) . "'
-                                data-dateposted='" . $task['DatePosted'] . "'
-                                data-status='" . $task['Status'] . "'
-                                data-estimatedduration='" . htmlspecialchars($task['EstimatedDuration']) . "'
-                                onclick='openTaskModal(this)'>
-                                <h3>" . htmlspecialchars($task['Title']) . "</h3>
-                                <p><strong>Location Type:</strong> " . htmlspecialchars($task['LocationType']) . "</p>
-                                <p><strong>Completion Date:</strong> " . htmlspecialchars($task['CompletionDate']) . "</p>
-                                <p><strong>Price:</strong> ₱" . number_format($task['Price'], 2) . "</p>
-                                
-                        </div>";
+                    data-taskid='" . $task['TaskID'] . "' 
+                    data-title='" . htmlspecialchars($task['Title']) . "' 
+                    data-description='" . htmlspecialchars($task['Description']) . "' 
+                    data-locationtype='" . $task['LocationType'] . "' 
+                    data-location='" . $task['Location'] . "' 
+                    data-category='" . $task['Category'] . "' 
+                    data-completiondate='" . $task['CompletionDate'] . "' 
+                    data-price='" . $task['Price'] . "' 
+                    data-notes='" . htmlspecialchars($task['Notes']) . "' 
+                    data-dateposted='" . $task['DatePosted'] . "' 
+                    data-status='" . $task['Status'] . "' 
+                    data-estimatedduration='" . htmlspecialchars($task['EstimatedDuration']) . "' 
+                    onclick='openTaskModal(this)'>
+                <h3>" . htmlspecialchars($task['Title']) . "</h3>
+                <p><strong>Location Type:</strong> " . htmlspecialchars($task['LocationType']) . "</p>
+                <p><strong>Completion Date:</strong> " . htmlspecialchars($task['CompletionDate']) . "</p>
+                <p><strong>Price:</strong> ₱" . number_format($task['Price'], 2) . "</p>
+                <p><strong>Total Comments:</strong> " . $task['CommentCount'] . "</p>
+            </div>";
                 }
             } else {
                 echo "<p>No active posts found.</p>";

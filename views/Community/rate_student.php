@@ -45,6 +45,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $rateQuery->bind_param("iii", $taskID, $studentID, $rating);
 
                 if ($rateQuery->execute()) {
+                    // Calculate trust points based on the rating
+                    $trustPoints = 0;
+                    if ($rating == 5) {
+                        $trustPoints = 10;
+                    } elseif ($rating == 4) {
+                        $trustPoints = 8;
+                    } elseif ($rating == 3) {
+                        $trustPoints = 5;
+                    }
+
+                    // Update the student's trust points in the users table
+                    if ($trustPoints > 0) {
+                        $updateTrustPointsQuery = $connection->prepare("
+                            UPDATE users 
+                            SET TrustPoints = TrustPoints + ? 
+                            WHERE UserID = ?
+                        ");
+                        $updateTrustPointsQuery->bind_param("ii", $trustPoints, $studentID);
+                        $updateTrustPointsQuery->execute();
+                        $updateTrustPointsQuery->close();
+                    }
+
                     echo "<script>alert('Rating submitted successfully!'); window.location.href = 'comm_dashboard.php';</script>";
                 } else {
                     echo "<script>alert('Failed to submit rating. Please try again.'); window.location.href = 'comm_dashboard.php';</script>";
