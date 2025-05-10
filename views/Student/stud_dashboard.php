@@ -157,8 +157,91 @@
             id="userIcon" 
             style="width:100px; height:100px; border-radius:50%; cursor: pointer;"
             onclick="openUserModal()">
+        
+        <!-- ------------------------------Ongoing Tasks------------------------------ -->
+        <h3>Your Ongoing Tasks</h3>
+        <!-- ------------------------------ONGOING TASKS------------------------------ -->
+        <?php
+        // Fetch tasks where the student has been accepted and the status is Open or Ongoing
+$ongoingTasksQuery = $connection->prepare("
+SELECT t.*, u.FirstName, u.LastName, u.ProfilePicture, u.Email AS PosterEmail
+FROM tasks t
+JOIN comments c ON t.TaskID = c.TaskID
+JOIN users u ON t.CommunityID = u.UserID
+WHERE c.StudentID = ? AND c.IsAccepted = 1 AND t.Status IN ('Open', 'Ongoing')
+ORDER BY t.DatePosted DESC
+");
+$ongoingTasksQuery->bind_param("i", $studentID);
+$ongoingTasksQuery->execute();
+$ongoingTasksResult = $ongoingTasksQuery->get_result();
 
+// Count the number of ongoing tasks
+$ongoingTaskCount = $ongoingTasksResult->num_rows;
+
+// Check if the student has reached the limit of 2 ongoing tasks
+if ($ongoingTaskCount >= 2) {
+echo "<p style='color: red;'><strong>You have reached the limit of 2 ongoing tasks. Complete a task to accept new ones.</strong></p>";
+}
+
+        // Count tasks where the status is Closed
+        $completedTasksQuery = $connection->prepare("
+            SELECT COUNT(*) AS CompletedCount
+            FROM tasks t
+            JOIN comments c ON t.TaskID = c.TaskID
+            WHERE c.StudentID = ? AND c.IsAccepted = 1 AND t.Status = 'Closed'
+        ");
+        $completedTasksQuery->bind_param("i", $studentID);
+        $completedTasksQuery->execute();
+        $completedTasksResult = $completedTasksQuery->get_result();
+        $completedTasksCount = $completedTasksResult->fetch_assoc()['CompletedCount'];
+        ?>
+
+        <!-- Display Completed Tasks Count -->
+        <p><strong>Completed task(s):</strong> <?= $completedTasksCount ?></p>
+
+        <?php if ($ongoingTasksResult->num_rows > 0): ?>
+            <div class="ongoing-tasks">
+                <?php $modalCount = 0; ?>
+                <?php while ($task = $ongoingTasksResult->fetch_assoc()): ?>
+                    <?php $modalId = "ongoing-task-modal_" . $modalCount++; ?>
+                    <div class="ongoing-task-box" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; cursor: pointer;" onclick="document.getElementById('<?= $modalId ?>').style.display='block'">
+                        <h4 class="ongoing-task-title"><?= htmlspecialchars($task['Title']) ?></h4>
+                        <p><strong>Posted By:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
+                        <p><strong>Location:</strong> <?= htmlspecialchars($task['Location']) ?></p>
+                        <p><strong>Completion Date:</strong> <?= htmlspecialchars($task['CompletionDate']) ?></p>
+                        <p><strong>Price:</strong> ₱<?= number_format($task['Price'], 2) ?></p>
+                    </div>
+
+                    <!-- Modal for Ongoing Task Details -->
+                    <div id="<?= $modalId ?>" class="modal">
+                        <div class="modal-content" style="max-height: 75vh; overflow-y: auto;">
+                            <span class="close" onclick="document.getElementById('<?= $modalId ?>').style.display='none'">&times;</span>
+                            <h2><?= htmlspecialchars($task['Title']) ?></h2>
+                            <p><strong>Posted On:</strong> <?= date("F j, Y, g:i a", strtotime($task['DatePosted'])) ?></p>
+                            <p><strong>Posted:</strong> <?= (new DateTime($task['DatePosted']))->diff(new DateTime())->days ?> day(s) ago</p>
+                            <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
+                                alt="Profile Picture" 
+                                style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; margin-bottom: 10px;">
+                            <p><strong>Status:</strong> <?= htmlspecialchars($task['Status']) ?></p>
+                            <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
+                            <p><strong>Location:</strong> <?= htmlspecialchars($task['Location']) ?></p>
+                            <p><strong>Completion Date:</strong> <?= htmlspecialchars($task['CompletionDate']) ?></p>
+                            <p><strong>Category:</strong> <?= htmlspecialchars($task['Category']) ?></p>
+                            <p><strong>Estimated Duration:</strong> <?= htmlspecialchars($task['EstimatedDuration']) ?></p>
+                            <p><strong>Price:</strong> ₱<?= number_format($task['Price'], 2) ?></p>
+                            <p><strong>Task Description:</strong> <?= nl2br(htmlspecialchars($task['Description'])) ?></p>
+                            <p><strong>Contact via Email:</strong> <?= htmlspecialchars($task['PosterEmail']) ?></p>
+                            <p><strong>Notes:</strong> <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
+                        </div>
+                    </div>
+                <?php endwhile; ?>
+            </div>
+        <?php else: ?>
+            <p>No ongoing tasks yet.</p>
+        <?php endif; ?>
+            
         <!-- ------------------------------VIEW POSTS------------------------------ -->
+        <h3>All Tasks</h3>
         <?php if ($result->num_rows > 0): ?>
         <?php $modalCount = 0; ?>
         <?php while ($task = $result->fetch_assoc()): 
@@ -182,11 +265,11 @@
                 <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
                             alt="Profile Picture" 
                             style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
-                <p class="task-title"><strong>Task Title:</strong> <?= htmlspecialchars($task['Title']) ?></p>
-                <p><strong>Location Type:</strong> <?= htmlspecialchars($task['LocationType']) ?></p>
-                <p><strong>Completion Date:</strong> <?= htmlspecialchars($task['CompletionDate']) ?></p>
+                <p class="task-title"><strong><?= htmlspecialchars($task['Title']) ?></strong></p>
+                <p><?= htmlspecialchars($task['LocationType']) ?></p>
+                <p><?= htmlspecialchars($task['CompletionDate']) ?></p>
                 <p class="posted-time" data-dateposted="<?= $task['DatePosted'] ?>"></p>
-                <p><strong>Price:</strong> ₱<?= number_format($task['Price'], 2) ?></p>
+                <p><strong>₱<?= number_format($task['Price'], 2) ?></strong> </p>
             </div>
 
             <!-- ------------------------------VIEW POSTS (MODAL, DETAILED)------------------------------ -->
@@ -212,65 +295,70 @@
                     <p><strong>Notes:</strong> <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
 
                     <!-- ------------------------------COMMENT SECTION------------------------------ -->
-                    <div style="margin-top: 20px;">
-                        <h3>Comments</h3>
-                        <?php if ($commentResult->num_rows > 0): ?>
-                            <?php while ($comment = $commentResult->fetch_assoc()): ?>
-                                <div class="comment-box" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 10px;">
-                                    <?php
-                                    // Fetch task poster's profile picture
-                                    $posterStmt = $connection->prepare("SELECT ProfilePicture FROM users WHERE UserID = ?");
-                                    $posterStmt->bind_param("i", $comment['StudentID']);
-                                    $posterStmt->execute();
-                                    $posterResult = $posterStmt->get_result();
-                                    $posterData = $posterResult->fetch_assoc();
-                                    ?>
-                                    
-                                    <!-- Display profile picture sa student na nag-comment-->
-                                    <img src="../Student/<?= htmlspecialchars($posterData['ProfilePicture']) ?>" alt="Poster Profile Picture" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; margin-bottom: 10px;">
+                    <!-- ------------------------------COMMENT SECTION------------------------------ -->
+<div style="margin-top: 20px;">
+    <h3>Comments</h3>
+    <?php if ($commentResult->num_rows > 0): ?>
+        <?php while ($comment = $commentResult->fetch_assoc()): ?>
+            <div class="comment-box" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 10px;">
+                <?php
+                // Fetch task poster's profile picture
+                $posterStmt = $connection->prepare("SELECT ProfilePicture FROM users WHERE UserID = ?");
+                $posterStmt->bind_param("i", $comment['StudentID']);
+                $posterStmt->execute();
+                $posterResult = $posterStmt->get_result();
+                $posterData = $posterResult->fetch_assoc();
+                ?>
+                
+                <!-- Display profile picture of the student who commented -->
+                <img src="../Student/<?= htmlspecialchars($posterData['ProfilePicture']) ?>" alt="Poster Profile Picture" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; margin-bottom: 10px;">
 
-                                    <p><strong><?= htmlspecialchars($comment['FirstName'] . " " . $comment['LastName']) ?></strong></p>
-                                    
-                                    <?php
-                                        // Get rating for this commenter (ug naa pud)
-                                        $studentId = $comment['StudentID'];
-                                        $ratingStmt = $connection->prepare("
-                                            SELECT AVG(Rating) as avg_rating
-                                            FROM taskratings
-                                            WHERE TaskID = ? AND StudentID = ?
-                                        ");
-                                        $ratingStmt->bind_param("ii", $taskId, $studentId);
-                                        $ratingStmt->execute();
-                                        $ratingResult = $ratingStmt->get_result();
-                                        $ratingData = $ratingResult->fetch_assoc();
-                                        $avgRating = round($ratingData['avg_rating']);
-                                    ?>
-                                    
-                                    <p>Rating:
-                                        <?php for ($i = 1; $i <= 5; $i++): ?>
-                                            <span style="color: gold;"><?= $i <= $avgRating ? "★" : "☆" ?></span>
-                                        <?php endfor; ?>
-                                    </p>
-                                    
-                                    <p class="posted-time" data-dateposted="<?= $comment['DatePosted'] ?>"></p>
-                                    <p><?= nl2br(htmlspecialchars($comment['Content'])) ?></p>
-                                </div>
+                <p><strong><?= htmlspecialchars($comment['FirstName'] . " " . $comment['LastName']) ?></strong></p>
+                
+                <?php
+                    // Get rating for this commenter (if available)
+                    $studentId = $comment['StudentID'];
+                    $ratingStmt = $connection->prepare("
+                        SELECT AVG(Rating) as avg_rating
+                        FROM taskratings
+                        WHERE TaskID = ? AND StudentID = ?
+                    ");
+                    $ratingStmt->bind_param("ii", $taskId, $studentId);
+                    $ratingStmt->execute();
+                    $ratingResult = $ratingStmt->get_result();
+                    $ratingData = $ratingResult->fetch_assoc();
+                    $avgRating = round($ratingData['avg_rating']);
+                ?>
+                
+                <p>Rating:
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <span style="color: gold;"><?= $i <= $avgRating ? "★" : "☆" ?></span>
+                    <?php endfor; ?>
+                </p>
+                
+                <p class="posted-time" data-dateposted="<?= $comment['DatePosted'] ?>"></p>
+                <p><?= nl2br(htmlspecialchars($comment['Content'])) ?></p>
+            </div>
+        <?php endwhile; ?>
+    <?php else: ?>
+        <p>No comments yet.</p>
+    <?php endif; ?>
+</div>
 
-                            <?php endwhile; ?>
-                        <?php else: ?>
-                            <p>No comments yet.</p>
-                        <?php endif; ?>
-                    </div>
-                    <!-- inputanan ug comments -->
-                    <div style="margin-top: 30px;">
-                        <h3>Leave a Comment</h3>
-                        <form action="submit_comment.php" method="POST">
-                            <input type="hidden" name="task_id" value="<?= $taskId ?>">
-                            <textarea name="comment_content" rows="4" style="width: 100%;" required placeholder="Write your comment..."></textarea>
-                            <br>
-                            <button type="submit">Post Comment</button>
-                        </form>
-                    </div>
+<!-- ------------------------------LEAVE A COMMENT SECTION------------------------------ -->
+<div style="margin-top: 30px;">
+    <h3>Leave a Comment</h3>
+    <?php if ($ongoingTaskCount >= 2): ?>
+        <p style="color: red;"><strong>You cannot leave a comment because you already have 2 ongoing tasks. Complete a task to comment on new ones.</strong></p>
+    <?php else: ?>
+        <form action="submit_comment.php" method="POST">
+            <input type="hidden" name="task_id" value="<?= $taskId ?>">
+            <textarea name="comment_content" rows="4" style="width: 100%;" required placeholder="Write your comment..."></textarea>
+            <br>
+            <button type="submit">Post Comment</button>
+        </form>
+    <?php endif; ?>
+</div>
 
                 </div>
             </div>
@@ -281,62 +369,100 @@
         <script src="stud_script.js"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                const notifications = <?php echo json_encode($notifications); ?>;
-                const notificationBadge = document.getElementById("notificationBadge");
-                const notificationList = document.getElementById("notificationList");
-                const notificationModal = document.getElementById("notificationModal");
+    const notifications = <?php echo json_encode($notifications); ?>;
+    const notificationBadge = document.getElementById("notificationBadge");
+    const notificationList = document.getElementById("notificationList");
+    const notificationModal = document.getElementById("notificationModal");
 
-                // Check if naay new notifications
-                if (notifications.length > 0) {
-                    const notificationsViewed = localStorage.getItem("notificationsViewed");
+    // Check if there are new notifications
+    if (notifications.length > 0) {
+        const notificationsViewed = localStorage.getItem("notificationsViewed");
 
-                    // show ang ! sa notif pag naay notif na wa pa nabasa
-                    if (!notificationsViewed) {
-                        notificationBadge.style.display = "flex";
-                    }
-
-                    // Populate ang notification list
-                    notifications.forEach(notification => {
-                        const listItem = document.createElement("li");
-                        listItem.style.padding = "10px 0";
-                        listItem.style.borderBottom = "1px solid #ccc";
-                        listItem.innerHTML = `
-                            <p><strong>Task Title:</strong> ${notification.Title}</p>
-                            <button onclick="showNotificationDetails(${JSON.stringify(notification).replace(/"/g, '&quot;')})" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">View Details</button>
-                        `;
-                        notificationList.appendChild(listItem);
-                    });
-                }
-            });
-
-            function goBackToNotificationList() {
-            // paghuman ug basa sa task details sa notif kay mu-adtoo sa notifications list
-            const notificationList = document.getElementById("notificationList");
-            notificationList.innerHTML = ""; // Clear the list
-
-            const notifications = <?php echo json_encode($notifications); ?>;
-            notifications.forEach(notification => {
-                const listItem = document.createElement("li");
-                listItem.style.padding = "10px 0";
-                listItem.style.borderBottom = "1px solid #ccc";
-                listItem.innerHTML = `
-                    <p><strong>Task Title:</strong> ${notification.Title}</p>
-                    <button onclick="showNotificationDetails(${JSON.stringify(notification).replace(/"/g, '&quot;')})" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">View Details</button>
-                `;
-                notificationList.appendChild(listItem);
-            });
-
-            // Show the notification list again
-            const notificationModal = document.getElementById("notificationModal");
-            notificationModal.innerHTML = `
-                <div style="padding: 10px; max-height: 300px; overflow-y: auto;">
-                    <h4>Notifications</h4>
-                    <ul id="notificationList" style="list-style: none; padding: 0; margin: 0;">
-                        ${notificationList.innerHTML}
-                    </ul>
-                </div>
-            `;
+        // Show the red badge only if notifications haven't been viewed
+        if (!notificationsViewed || notificationsViewed !== "true") {
+            notificationBadge.style.display = "flex";
         }
+
+        // Populate the notification list
+        notifications.forEach(notification => {
+            const listItem = document.createElement("li");
+            listItem.style.padding = "10px 0";
+            listItem.style.borderBottom = "1px solid #ccc";
+            listItem.innerHTML = `
+                <p><strong>Task Title:</strong> ${notification.Title}</p>
+                <button onclick="showNotificationDetails(${JSON.stringify(notification).replace(/"/g, '&quot;')})" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">View Details</button>
+            `;
+            notificationList.appendChild(listItem);
+        });
+    }
+});
+
+// Toggle the notification modal
+function toggleNotificationModal() {
+    const modal = document.getElementById("notificationModal");
+    modal.style.display = modal.style.display === "block" ? "none" : "block";
+
+    // Hide the red badge when the modal is opened
+    if (modal.style.display === "block") {
+        document.getElementById("notificationBadge").style.display = "none";
+
+        // Save the state in localStorage
+        localStorage.setItem("notificationsViewed", "true");
+    }
+}
+
+// Show task details in a new modal
+function showNotificationDetails(notification) {
+    // Create a new modal for task details
+    const modalId = "taskDetailsModal";
+    let modal = document.getElementById(modalId);
+
+    // If the modal doesn't exist, create it
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = modalId;
+        modal.className = "modal";
+        modal.style.display = "block";
+        modal.style.position = "fixed";
+        modal.style.top = "50%";
+        modal.style.left = "50%";
+        modal.style.transform = "translate(-50%, -50%)";
+        modal.style.background = "white";
+        modal.style.border = "1px solid #ccc";
+        modal.style.borderRadius = "5px";
+        modal.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+        modal.style.width = "400px";
+        modal.style.zIndex = "1000";
+        modal.style.padding = "20px";
+        modal.style.maxHeight = "80vh";
+        modal.style.overflowY = "auto";
+
+        document.body.appendChild(modal);
+    }
+
+    // Populate the modal with task details
+    modal.innerHTML = `
+        <h4>${notification.Title}</h4>
+        <p><strong>Posted By:</strong> ${notification.FirstName} ${notification.LastName}</p>
+        <p><strong>Location:</strong> ${notification.Location}</p>
+        <p><strong>Email:</strong> ${notification.Email}</p>
+        <p><strong>Description:</strong> ${notification.Description}</p>
+        <p><strong>Notes:</strong> ${notification.Notes}</p>
+        <p>View your ongoing tasks to see full details.</p>
+        <button onclick="closeTaskDetailsModal('${modalId}')" style="margin-top: 10px; background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Close</button>
+    `;
+
+    // Show the modal
+    modal.style.display = "block";
+}
+
+// Close the task details modal
+function closeTaskDetailsModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
         </script>
     </body>
 </html>
