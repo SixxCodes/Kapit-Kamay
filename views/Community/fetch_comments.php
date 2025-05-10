@@ -45,6 +45,40 @@ if (isset($_GET['task_id'])) {
             if ($comment['IsAccepted'] == 1) {
                 echo "<p style='color: green; font-weight: bold;'>Student Accepted</p>";
                 echo "<button disabled style='background-color: gray; cursor: not-allowed;'>Accepted</button>";
+
+                // Check if the student has already been rated
+                $checkRatingQuery = $connection->prepare("
+                    SELECT RatingID 
+                    FROM taskratings 
+                    WHERE TaskID = ? AND StudentID = ?
+                ");
+                $checkRatingQuery->bind_param("ii", $taskId, $comment['StudentID']);
+                $checkRatingQuery->execute();
+                $checkRatingResult = $checkRatingQuery->get_result();
+
+                if ($checkRatingResult->num_rows > 0) {
+                    // Rating already exists
+                    echo "<p style='color: blue; font-weight: bold;'>You have already rated this student for this task.</p>";
+                } else {
+                    // Add a dropdown for rating the student
+                    echo "<form action='rate_student.php' method='POST' style='margin-top: 10px;'>";
+                    echo "<input type='hidden' name='student_id' value='" . $comment['StudentID'] . "'>";
+                    echo "<input type='hidden' name='task_id' value='" . $taskId . "'>";
+                    echo "<label for='rating'>Rate this student:</label>";
+                    echo "<select name='rating' required>";
+                    echo "<option value='' disabled selected>Select Rating</option>";
+                    echo "<option value='1'>1 - Poor</option>";
+                    echo "<option value='2'>2 - Fair</option>";
+                    echo "<option value='3'>3 - Good</option>";
+                    echo "<option value='4'>4 - Very Good</option>";
+                    echo "<option value='5'>5 - Excellent</option>";
+                    echo "</select>";
+                    echo "<br><br>";
+                    echo "<button type='submit' style='background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;'>Submit Rating</button>";
+                    echo "</form>";
+                }
+
+                $checkRatingQuery->close();
             } else {
                 echo "<button onclick='acceptComment(" . $comment['CommentID'] . ")'>Accept</button>";
             }
