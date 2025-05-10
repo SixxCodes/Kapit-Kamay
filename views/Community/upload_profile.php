@@ -1,6 +1,6 @@
 <?php
     session_start();
-    include_once('../../includes/mysqlconnection.php');
+    include_once('../../includes/mysqlconnection.php'); // connect database
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_picture'])) {
         $email = $_SESSION['login_email'];
@@ -11,7 +11,7 @@
             mkdir($uploadDir, 0777, true);
         }
 
-        // Generate unique filename
+        // Generate unique filename aron sure na wlay magkaparehas sa file names
         $fileName = time() . "_" . basename($_FILES["profile_picture"]["name"]);
         $targetPath = $uploadDir . $fileName;
 

@@ -1,5 +1,5 @@
 <?php
-include_once('../../includes/mysqlconnection.php');
+include_once('../../includes/mysqlconnection.php'); // connect database
 
 if (isset($_GET['task_id'])) {
     $taskId = (int)$_GET['task_id'];

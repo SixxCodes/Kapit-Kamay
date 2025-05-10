@@ -1,4 +1,56 @@
 // ------------------------------TASK MODAL------------------------------
+// ------------------------------SEARCH TASKS------------------------------
+function filterMyTasks() {
+    const input = document.getElementById('taskSearchBar').value.toLowerCase();
+    const tasks = document.querySelectorAll('.task-box');
+
+    tasks.forEach(task => {
+        const title = task.getAttribute('data-title').toLowerCase();
+        // Only show tasks that contain the keyword
+        if (title.includes(input)) {
+            task.style.display = 'block';
+        } else {
+            task.style.display = 'none';
+        }
+    });
+}
+
+// ------------------------------USER------------------------------
+function openUserModal() {
+    document.getElementById('userModal').style.display = 'block';
+}
+
+function closeUserModal() {
+    document.getElementById('userModal').style.display = 'none';
+}
+
+// Optional: Close when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('userModal');
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+}
+
+function openProfileModal(comment) {
+    // Populate the modal with the student's details
+    document.getElementById('modalProfilePicture').src = comment.ProfilePicture 
+        ? "../Student/" + comment.ProfilePicture 
+        : "../assets/default-avatar.png";
+    document.getElementById('modalFullName').innerText = comment.FirstName + " " + comment.LastName;
+    document.getElementById('modalEmail').innerText = comment.Email;
+    document.getElementById('modalRole').innerText = comment.Role;
+    document.getElementById('modalTrustPoints').innerText = comment.TrustPoints;
+
+    // Show the modal
+    document.getElementById('profileModal').style.display = 'block';
+}
+
+function closeProfileModal() {
+    // Hide the modal
+    document.getElementById('profileModal').style.display = 'none';
+}
+
 function openTaskModal(taskElement) {
     // Get task details sa gi-click lang nga task box
     var taskId = taskElement.getAttribute('data-taskid');
@@ -95,40 +147,6 @@ function updateTaskStatus(selectElement) {
     xhr.send("task_id=" + encodeURIComponent(taskID) + "&task_status=" + encodeURIComponent(status));
 }
 
-// ------------------------------USER------------------------------
-function openUserModal() {
-    document.getElementById('userModal').style.display = 'block';
-}
-
-function closeUserModal() {
-    document.getElementById('userModal').style.display = 'none';
-}
-
-// Optional: Close when clicking outside
-window.onclick = function(event) {
-    const modal = document.getElementById('userModal');
-    if (event.target === modal) {
-        modal.style.display = "none";
-    }
-}
-
-// ------------------------------FILTER TASKS------------------------------
-function filterMyTasks() {
-    const input = document.getElementById('taskSearchBar').value.toLowerCase();
-    const tasks = document.querySelectorAll('.task-box');
-
-    tasks.forEach(task => {
-        const title = task.getAttribute('data-title').toLowerCase();
-        // Only show tasks that contain the keyword
-        if (title.includes(input)) {
-            task.style.display = 'block';
-        } else {
-            task.style.display = 'none';
-        }
-    });
-}
-
-
 // ------------------------------COMMENTS------------------------------
 function fetchComments(taskId) {
     // Use AJAX to fetch comments for the specific task
@@ -157,25 +175,6 @@ function acceptComment(commentID) {
         })
         .catch(error => console.error('Error:', error));
     }
-}
-
-function openProfileModal(comment) {
-    // Populate the modal with the student's details
-    document.getElementById('modalProfilePicture').src = comment.ProfilePicture 
-        ? "../Student/" + comment.ProfilePicture 
-        : "../assets/default-avatar.png";
-    document.getElementById('modalFullName').innerText = comment.FirstName + " " + comment.LastName;
-    document.getElementById('modalEmail').innerText = comment.Email;
-    document.getElementById('modalRole').innerText = comment.Role;
-    document.getElementById('modalTrustPoints').innerText = comment.TrustPoints;
-
-    // Show the modal
-    document.getElementById('profileModal').style.display = 'block';
-}
-
-function closeProfileModal() {
-    // Hide the modal
-    document.getElementById('profileModal').style.display = 'none';
 }
 
 // ------------------------------FOR COUNT TIME AGO------------------------------

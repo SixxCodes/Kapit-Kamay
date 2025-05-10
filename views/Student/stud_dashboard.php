@@ -14,13 +14,13 @@
     5. ihan-ay ang css
 
     Student Dashboard
-    21. ratings sa profile
-    22. task completed profile
-    23. notification sa na-accept
+    21. ratings sa profile (done)
+    22. task completed profile (done)
+    23. notification sa na-accept (done)
     24. sorting date ascending and descending, highest to lowest, lowest to highest price
-    25. ma-click ang profile sa community
-    28. ongoing tasks
-    29. ang search bar, dli mu-follow ug 1 letter
+    25. ma-click ang profile sa community (done)
+    28. ongoing tasks (done)
+    29. ang search bar, dli mu-follow ug 1 letter (done)
  -->
 
  <?php
@@ -75,9 +75,11 @@
     </head>
     <body>
         
+        <!-- ------------------------------HEADER------------------------------ -->
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-        <input type="text" id="taskSearch" placeholder="Search by task title..." style="padding: 8px; width: 100%; max-width: 400px; margin-bottom: 20px;">
+            <input type="text" id="taskSearch" placeholder="Search by task title..." style="padding: 8px; width: 100%; max-width: 400px; margin-bottom: 20px;">
 
+            <!-- ------------------------------NOTIFICATIONS------------------------------ -->
             <!-- Notification Button -->
             <div id="notif-container" style="position: relative; margin-left: 20px;">
                 <button id="notificationButton" onclick="toggleNotificationModal()" style="position: relative; background: none; border: none; cursor: pointer;">
@@ -96,8 +98,10 @@
                         </ul>
                     </div>
                 </div>
+
             </div>
         </div>
+
         <?php
             // Fetch notifications for the logged-in student
             $notificationQuery = $connection->prepare("
@@ -158,73 +162,75 @@
             style="width:100px; height:100px; border-radius:50%; cursor: pointer;"
             onclick="openUserModal()">
         
-        <!-- ------------------------------Ongoing Tasks------------------------------ -->
-        
-        <!-- ------------------------------ONGOING TASKS------------------------------ -->
+        <!-- ------------------------------TASK DETAILS------------------------------ -->
         <?php
-        // Fetch tasks where the student has been accepted and the status is Open or Ongoing
-$ongoingTasksQuery = $connection->prepare("
-SELECT t.*, u.FirstName, u.LastName, u.ProfilePicture, u.Email AS PosterEmail
-FROM tasks t
-JOIN comments c ON t.TaskID = c.TaskID
-JOIN users u ON t.CommunityID = u.UserID
-WHERE c.StudentID = ? AND c.IsAccepted = 1 AND t.Status IN ('Open', 'Ongoing')
-ORDER BY t.DatePosted DESC
-");
-$ongoingTasksQuery->bind_param("i", $studentID);
-$ongoingTasksQuery->execute();
-$ongoingTasksResult = $ongoingTasksQuery->get_result();
-
-// Count the number of ongoing tasks
-$ongoingTaskCount = $ongoingTasksResult->num_rows;
-
-// Check if the student has reached the limit of 2 ongoing tasks
-if ($ongoingTaskCount >= 2) {
-echo "<p style='color: red;'><strong>You have reached the limit of 2 ongoing tasks. Complete a task to accept new ones.</strong></p>";
-}
-
-        // Count tasks where the status is Closed
-        $completedTasksQuery = $connection->prepare("
-            SELECT COUNT(*) AS CompletedCount
+            // ------------------------------ONGOING TASKS PHP------------------------------ 
+            // Fetch tasks where the student has been accepted and the status is Open or Ongoing
+            $ongoingTasksQuery = $connection->prepare("
+            SELECT t.*, u.FirstName, u.LastName, u.ProfilePicture, u.Email AS PosterEmail
             FROM tasks t
             JOIN comments c ON t.TaskID = c.TaskID
-            WHERE c.StudentID = ? AND c.IsAccepted = 1 AND t.Status = 'Closed'
-        ");
-        $completedTasksQuery->bind_param("i", $studentID);
-        $completedTasksQuery->execute();
-        $completedTasksResult = $completedTasksQuery->get_result();
-        $completedTasksCount = $completedTasksResult->fetch_assoc()['CompletedCount'];
+            JOIN users u ON t.CommunityID = u.UserID
+            WHERE c.StudentID = ? AND c.IsAccepted = 1 AND t.Status IN ('Open', 'Ongoing')
+            ORDER BY t.DatePosted DESC
+            ");
+            $ongoingTasksQuery->bind_param("i", $studentID);
+            $ongoingTasksQuery->execute();
+            $ongoingTasksResult = $ongoingTasksQuery->get_result();
+
+            // Count the number of ongoing tasks
+            $ongoingTaskCount = $ongoingTasksResult->num_rows;
+
+            // Check if the student has reached the limit of 2 ongoing tasks
+            if ($ongoingTaskCount >= 2) {
+            echo "<p style='color: red;'><strong>You have reached the limit of 2 ongoing tasks. Complete a task to accept new ones.</strong></p>";
+            }
+
+            // ------------------------------COMPLETED TASKS PHP------------------------------ 
+            // Count tasks where the status is Closed
+            $completedTasksQuery = $connection->prepare("
+                SELECT COUNT(*) AS CompletedCount
+                FROM tasks t
+                JOIN comments c ON t.TaskID = c.TaskID
+                WHERE c.StudentID = ? AND c.IsAccepted = 1 AND t.Status = 'Closed'
+            ");
+            $completedTasksQuery->bind_param("i", $studentID);
+            $completedTasksQuery->execute();
+            $completedTasksResult = $completedTasksQuery->get_result();
+            $completedTasksCount = $completedTasksResult->fetch_assoc()['CompletedCount'];
         ?>
 
+        <!-- ------------------------------STUDENT PROFILE SUMMARY------------------------------  -->
         <!-- Display Trust Points, Rating, and Completed Tasks -->
-<div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 10px; border-radius: 5px; background-color: #f9f9f9;">
-    <p><strong>Trust Points:</strong> <?= htmlspecialchars($user['TrustPoints']) ?></p>
+        <div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 10px; border-radius: 5px; background-color: #f9f9f9;">
+            <p><strong>Trust Points:</strong> <?= htmlspecialchars($user['TrustPoints']) ?></p>
     
-    <?php
-    // Fetch the average rating for the student
-    $ratingQuery = $connection->prepare("
-        SELECT AVG(Rating) AS avg_rating 
-        FROM taskratings 
-        WHERE StudentID = ?
-    ");
-    $ratingQuery->bind_param("i", $studentID);
-    $ratingQuery->execute();
-    $ratingResult = $ratingQuery->get_result();
-    $ratingData = $ratingResult->fetch_assoc();
-    $avgRating = round($ratingData['avg_rating']);
-    $ratingQuery->close();
-    ?>
-    
-    <p><strong>Rating:</strong>
-        <?php for ($i = 1; $i <= 5; $i++): ?>
-            <span style="color: gold;"><?= $i <= $avgRating ? "★" : "☆" ?></span>
-        <?php endfor; ?>
-    </p>
-    
-    <p><strong>Completed Tasks:</strong> <?= $completedTasksCount ?></p>
-</div>
-        <!-- Display Completed Tasks Count -->
-        <!-- <p><strong>Completed task(s):</strong> <?= $completedTasksCount ?></p> -->
+            <?php
+            // Fetch the average rating for the student
+            $ratingQuery = $connection->prepare("
+                SELECT AVG(Rating) AS avg_rating 
+                FROM taskratings 
+                WHERE StudentID = ?
+            ");
+            $ratingQuery->bind_param("i", $studentID);
+            $ratingQuery->execute();
+            $ratingResult = $ratingQuery->get_result();
+            $ratingData = $ratingResult->fetch_assoc();
+            $avgRating = round($ratingData['avg_rating']);
+            $ratingQuery->close();
+            ?>
+            
+            <p><strong>Rating:</strong>
+                <?php for ($i = 1; $i <= 5; $i++): ?>
+                    <span style="color: gold;"><?= $i <= $avgRating ? "★" : "☆" ?></span>
+                <?php endfor; ?>
+            </p>
+            
+            <!-- Display Completed Tasks Count -->
+            <p><strong>Completed Tasks:</strong> <?= $completedTasksCount ?></p>
+        </div>
+
+        <!-- ------------------------------DISPLAY ONGOING TASKS------------------------------  -->
         <h3>Your Ongoing Tasks</h3>
 
         <?php if ($ongoingTasksResult->num_rows > 0): ?>
@@ -310,13 +316,14 @@ echo "<p style='color: red;'><strong>You have reached the limit of 2 ongoing tas
 
                     <!-- <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
                         alt="Profile Picture" 
-                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;"> -->
-                        <!-- Community Poster Section -->
-<img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
-    alt="Profile Picture" 
-    style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; cursor: pointer;"
-    onclick="openCommunityProfileModal('<?= htmlspecialchars($task['ProfilePicture']) ?>', '<?= htmlspecialchars($task['FirstName'] . ' ' . $task['LastName']) ?>', '<?= htmlspecialchars($task['PosterEmail']) ?>', 'Community')">
-<p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
+                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;"> 
+                    -->
+
+                    <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
+                        alt="Profile Picture" 
+                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; cursor: pointer;"
+                        onclick="openCommunityProfileModal('<?= htmlspecialchars($task['ProfilePicture']) ?>', '<?= htmlspecialchars($task['FirstName'] . ' ' . $task['LastName']) ?>', '<?= htmlspecialchars($task['PosterEmail']) ?>', 'Community')">
+                    <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
                     <p><strong>Status:</strong> <?= htmlspecialchars($task['Status']) ?></p>
                     <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
                     <!-- <p><strong>Location Type:</strong> <?= htmlspecialchars($task['LocationType']) ?></p> -->
@@ -330,70 +337,69 @@ echo "<p style='color: red;'><strong>You have reached the limit of 2 ongoing tas
                     <p><strong>Notes:</strong> <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
 
                     <!-- ------------------------------COMMENT SECTION------------------------------ -->
-                    <!-- ------------------------------COMMENT SECTION------------------------------ -->
-<div style="margin-top: 20px;">
-    <h3>Comments</h3>
-    <?php if ($commentResult->num_rows > 0): ?>
-        <?php while ($comment = $commentResult->fetch_assoc()): ?>
-            <div class="comment-box" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 10px;">
-                <?php
-                // Fetch task poster's profile picture
-                $posterStmt = $connection->prepare("SELECT ProfilePicture FROM users WHERE UserID = ?");
-                $posterStmt->bind_param("i", $comment['StudentID']);
-                $posterStmt->execute();
-                $posterResult = $posterStmt->get_result();
-                $posterData = $posterResult->fetch_assoc();
-                ?>
-                
-                <!-- Display profile picture of the student who commented -->
-                <img src="../Student/<?= htmlspecialchars($posterData['ProfilePicture']) ?>" alt="Poster Profile Picture" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; margin-bottom: 10px;">
+                    <div style="margin-top: 20px;">
+                        <h3>Comments</h3>
+                        <?php if ($commentResult->num_rows > 0): ?>
+                            <?php while ($comment = $commentResult->fetch_assoc()): ?>
+                                <div class="comment-box" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 10px;">
+                                    <?php
+                                    // Fetch task poster's profile picture
+                                    $posterStmt = $connection->prepare("SELECT ProfilePicture FROM users WHERE UserID = ?");
+                                    $posterStmt->bind_param("i", $comment['StudentID']);
+                                    $posterStmt->execute();
+                                    $posterResult = $posterStmt->get_result();
+                                    $posterData = $posterResult->fetch_assoc();
+                                    ?>
+                                    
+                                    <!-- Display profile picture of the student who commented -->
+                                    <img src="../Student/<?= htmlspecialchars($posterData['ProfilePicture']) ?>" alt="Poster Profile Picture" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; margin-bottom: 10px;">
 
-                <p><strong><?= htmlspecialchars($comment['FirstName'] . " " . $comment['LastName']) ?></strong></p>
-                
-                <?php
-                    // Get rating for this commenter (if available)
-                    $studentId = $comment['StudentID'];
-                    $ratingStmt = $connection->prepare("
-                        SELECT AVG(Rating) as avg_rating
-                        FROM taskratings
-                        WHERE TaskID = ? AND StudentID = ?
-                    ");
-                    $ratingStmt->bind_param("ii", $taskId, $studentId);
-                    $ratingStmt->execute();
-                    $ratingResult = $ratingStmt->get_result();
-                    $ratingData = $ratingResult->fetch_assoc();
-                    $avgRating = round($ratingData['avg_rating']);
-                ?>
-                
-                <p>Rating:
-                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                        <span style="color: gold;"><?= $i <= $avgRating ? "★" : "☆" ?></span>
-                    <?php endfor; ?>
-                </p>
-                
-                <p class="posted-time" data-dateposted="<?= $comment['DatePosted'] ?>"></p>
-                <p><?= nl2br(htmlspecialchars($comment['Content'])) ?></p>
-            </div>
-        <?php endwhile; ?>
-    <?php else: ?>
-        <p>No comments yet.</p>
-    <?php endif; ?>
-</div>
+                                    <p><strong><?= htmlspecialchars($comment['FirstName'] . " " . $comment['LastName']) ?></strong></p>
+                                    
+                                    <?php
+                                        // Get rating for this commenter (if available)
+                                        $studentId = $comment['StudentID'];
+                                        $ratingStmt = $connection->prepare("
+                                            SELECT AVG(Rating) as avg_rating
+                                            FROM taskratings
+                                            WHERE TaskID = ? AND StudentID = ?
+                                        ");
+                                        $ratingStmt->bind_param("ii", $taskId, $studentId);
+                                        $ratingStmt->execute();
+                                        $ratingResult = $ratingStmt->get_result();
+                                        $ratingData = $ratingResult->fetch_assoc();
+                                        $avgRating = round($ratingData['avg_rating']);
+                                    ?>
+                                    
+                                    <p>Rating:
+                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                            <span style="color: gold;"><?= $i <= $avgRating ? "★" : "☆" ?></span>
+                                        <?php endfor; ?>
+                                    </p>
+                                    
+                                    <p class="posted-time" data-dateposted="<?= $comment['DatePosted'] ?>"></p>
+                                    <p><?= nl2br(htmlspecialchars($comment['Content'])) ?></p>
+                                </div>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <p>No comments yet.</p>
+                        <?php endif; ?>
+                    </div>
 
-<!-- ------------------------------LEAVE A COMMENT SECTION------------------------------ -->
-<div style="margin-top: 30px;">
-    <h3>Leave a Comment</h3>
-    <?php if ($ongoingTaskCount >= 2): ?>
-        <p style="color: red;"><strong>You cannot leave a comment because you already have 2 ongoing tasks. Complete a task to comment on new ones.</strong></p>
-    <?php else: ?>
-        <form action="submit_comment.php" method="POST">
-            <input type="hidden" name="task_id" value="<?= $taskId ?>">
-            <textarea name="comment_content" rows="4" style="width: 100%;" required placeholder="Write your comment..."></textarea>
-            <br>
-            <button type="submit">Post Comment</button>
-        </form>
-    <?php endif; ?>
-</div>
+                    <!-- ------------------------------LEAVE A COMMENT------------------------------ -->
+                    <div style="margin-top: 30px;">
+                        <h3>Leave a Comment</h3>
+                        <?php if ($ongoingTaskCount >= 2): ?>
+                            <p style="color: red;"><strong>You cannot leave a comment because you already have 2 ongoing tasks. Complete a task to comment on new ones.</strong></p>
+                        <?php else: ?>
+                            <form action="submit_comment.php" method="POST">
+                                <input type="hidden" name="task_id" value="<?= $taskId ?>">
+                                <textarea name="comment_content" rows="4" style="width: 100%;" required placeholder="Write your comment..."></textarea>
+                                <br>
+                                <button type="submit">Post Comment</button>
+                            </form>
+                        <?php endif; ?>
+                    </div>
 
                 </div>
             </div>
@@ -402,139 +408,130 @@ echo "<p style='color: red;'><strong>You have reached the limit of 2 ongoing tas
             <p>No active community posts available.</p>
         <?php endif; ?>
 
-
-
-
-
-
-        
         <!-- Community Profile Modal -->
-<div id="communityProfileModal" class="modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width: 300px; z-index: 1000; padding: 20px;">
-    <span class="close" onclick="closeCommunityProfileModal()" style="cursor: pointer; float: right; font-size: 20px;">&times;</span>
-    <div style="text-align: center;">
-        <img id="communityProfilePicture" src="" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px;">
-        <h3 id="communityFullName"></h3>
-        <p><strong>Email:</strong> <span id="communityEmail"></span></p>
-        <p><strong>Role:</strong> <span id="communityRole"></span></p>
-    </div>
-</div>
+        <div id="communityProfileModal" class="modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width: 300px; z-index: 1000; padding: 20px;">
+            <span class="close" onclick="closeCommunityProfileModal()" style="cursor: pointer; float: right; font-size: 20px;">&times;</span>
+            <div style="text-align: center;">
+                <img id="communityProfilePicture" src="" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px;">
+                <h3 id="communityFullName"></h3>
+                <p><strong>Email:</strong> <span id="communityEmail"></span></p>
+                <p><strong>Role:</strong> <span id="communityRole"></span></p>
+            </div>
+        </div>
+        
         <script src="stud_script.js"></script>
         <script>
+            function openCommunityProfileModal(profilePicture, fullName, email, role) {
+                // Populate the modal with the community poster's details
+                document.getElementById('communityProfilePicture').src = '../Community/' + profilePicture;
+                document.getElementById('communityFullName').textContent = fullName;
+                document.getElementById('communityEmail').textContent = email;
+                document.getElementById('communityRole').textContent = role;
 
-function openCommunityProfileModal(profilePicture, fullName, email, role) {
-    // Populate the modal with the community poster's details
-    document.getElementById('communityProfilePicture').src = '../Community/' + profilePicture;
-    document.getElementById('communityFullName').textContent = fullName;
-    document.getElementById('communityEmail').textContent = email;
-    document.getElementById('communityRole').textContent = role;
+                // Show the modal
+                document.getElementById('communityProfileModal').style.display = 'block';
+            }
 
-    // Show the modal
-    document.getElementById('communityProfileModal').style.display = 'block';
-}
-
-function closeCommunityProfileModal() {
-    // Hide the modal
-    document.getElementById('communityProfileModal').style.display = 'none';
-}
-
-
-
+            function closeCommunityProfileModal() {
+                // Hide the modal
+                document.getElementById('communityProfileModal').style.display = 'none';
+            }
 
             document.addEventListener("DOMContentLoaded", function () {
-    const notifications = <?php echo json_encode($notifications); ?>;
-    const notificationBadge = document.getElementById("notificationBadge");
-    const notificationList = document.getElementById("notificationList");
-    const notificationModal = document.getElementById("notificationModal");
+                const notifications = <?php echo json_encode($notifications); ?>;
+                const notificationBadge = document.getElementById("notificationBadge");
+                const notificationList = document.getElementById("notificationList");
+                const notificationModal = document.getElementById("notificationModal");
 
-    // Check if there are new notifications
-    if (notifications.length > 0) {
-        const notificationsViewed = localStorage.getItem("notificationsViewed");
+                // Check if there are new notifications
+                if (notifications.length > 0) {
+                    const notificationsViewed = localStorage.getItem("notificationsViewed");
 
-        // Show the red badge only if notifications haven't been viewed
-        if (!notificationsViewed || notificationsViewed !== "true") {
-            notificationBadge.style.display = "flex";
-        }
+                    // Show the red badge only if notifications haven't been viewed
+                    if (!notificationsViewed || notificationsViewed !== "true") {
+                        notificationBadge.style.display = "flex";
+                    }
 
-        // Populate the notification list
-        notifications.forEach(notification => {
-            const listItem = document.createElement("li");
-            listItem.style.padding = "10px 0";
-            listItem.style.borderBottom = "1px solid #ccc";
-            listItem.innerHTML = `
-                <p><strong>Task Title:</strong> ${notification.Title}</p>
-                <button onclick="showNotificationDetails(${JSON.stringify(notification).replace(/"/g, '&quot;')})" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">View Details</button>
-            `;
-            notificationList.appendChild(listItem);
-        });
-    }
-});
+                    // Populate the notification list
+                    notifications.forEach(notification => {
+                        const listItem = document.createElement("li");
+                        listItem.style.padding = "10px 0";
+                        listItem.style.borderBottom = "1px solid #ccc";
+                        listItem.innerHTML = `
+                            <p><strong>Task Title:</strong> ${notification.Title}</p>
+                            <button onclick="showNotificationDetails(${JSON.stringify(notification).replace(/"/g, '&quot;')})" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">View Details</button>
+                        `;
+                        notificationList.appendChild(listItem);
+                    });
+                }
+            });
 
-// Toggle the notification modal
-function toggleNotificationModal() {
-    const modal = document.getElementById("notificationModal");
-    modal.style.display = modal.style.display === "block" ? "none" : "block";
+            // Toggle the notification modal
+            function toggleNotificationModal() {
+                const modal = document.getElementById("notificationModal");
+                modal.style.display = modal.style.display === "block" ? "none" : "block";
 
-    // Hide the red badge when the modal is opened
-    if (modal.style.display === "block") {
-        document.getElementById("notificationBadge").style.display = "none";
+                // Hide the red badge when the modal is opened
+                if (modal.style.display === "block") {
+                    document.getElementById("notificationBadge").style.display = "none";
 
-        // Save the state in localStorage
-        localStorage.setItem("notificationsViewed", "true");
-    }
-}
+                    // Save the state in localStorage
+                    localStorage.setItem("notificationsViewed", "true");
+                }
+            }
 
-// Show task details in a new modal
-function showNotificationDetails(notification) {
-    // Create a new modal for task details
-    const modalId = "taskDetailsModal";
-    let modal = document.getElementById(modalId);
+            // Show task details in a new modal
+            function showNotificationDetails(notification) {
+                // Create a new modal for task details
+                const modalId = "taskDetailsModal";
+                let modal = document.getElementById(modalId);
 
-    // If the modal doesn't exist, create it
-    if (!modal) {
-        modal = document.createElement("div");
-        modal.id = modalId;
-        modal.className = "modal";
-        modal.style.display = "block";
-        modal.style.position = "fixed";
-        modal.style.top = "50%";
-        modal.style.left = "50%";
-        modal.style.transform = "translate(-50%, -50%)";
-        modal.style.background = "white";
-        modal.style.border = "1px solid #ccc";
-        modal.style.borderRadius = "5px";
-        modal.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
-        modal.style.width = "400px";
-        modal.style.zIndex = "1000";
-        modal.style.padding = "20px";
-        modal.style.maxHeight = "80vh";
-        modal.style.overflowY = "auto";
+                // If the modal doesn't exist, create it
+                if (!modal) {
+                    modal = document.createElement("div");
+                    modal.id = modalId;
+                    modal.className = "modal";
+                    modal.style.display = "block";
+                    modal.style.position = "fixed";
+                    modal.style.top = "50%";
+                    modal.style.left = "50%";
+                    modal.style.transform = "translate(-50%, -50%)";
+                    modal.style.background = "white";
+                    modal.style.border = "1px solid #ccc";
+                    modal.style.borderRadius = "5px";
+                    modal.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+                    modal.style.width = "400px";
+                    modal.style.zIndex = "1000";
+                    modal.style.padding = "20px";
+                    modal.style.maxHeight = "80vh";
+                    modal.style.overflowY = "auto";
 
-        document.body.appendChild(modal);
-    }
+                    document.body.appendChild(modal);
+                }
 
-    // Populate the modal with task details
-    modal.innerHTML = `
-        <h4>${notification.Title}</h4>
-        <p><strong>Posted By:</strong> ${notification.FirstName} ${notification.LastName}</p>
-        <p><strong>Location:</strong> ${notification.Location}</p>
-        <p><strong>Email:</strong> ${notification.Email}</p>
-        <p><strong>Description:</strong> ${notification.Description}</p>
-        <p><strong>Notes:</strong> ${notification.Notes}</p>
-        <p>View your ongoing tasks to see full details.</p>
-        <button onclick="closeTaskDetailsModal('${modalId}')" style="margin-top: 10px; background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Close</button>
-    `;
+                // Populate the modal with task details
+                modal.innerHTML = `
+                    <h4>${notification.Title}</h4>
+                    <p><strong>Posted By:</strong> ${notification.FirstName} ${notification.LastName}</p>
+                    <p><strong>Location:</strong> ${notification.Location}</p>
+                    <p><strong>Email:</strong> ${notification.Email}</p>
+                    <p><strong>Description:</strong> ${notification.Description}</p>
+                    <p><strong>Notes:</strong> ${notification.Notes}</p>
+                    <p>View your ongoing tasks to see full details.</p>
+                    <button onclick="closeTaskDetailsModal('${modalId}')" style="margin-top: 10px; background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Close</button>
+                `;
 
-    // Show the modal
-    modal.style.display = "block";
-}
+                // Show the modal
+                modal.style.display = "block";
+            }
 
-// Close the task details modal
-function closeTaskDetailsModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = "none";
-    }
-}
+            // Close the task details modal
+            function closeTaskDetailsModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.style.display = "none";
+                }
+            }
         </script>
     </body>
 </html>

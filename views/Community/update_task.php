@@ -36,10 +36,28 @@
 
         // Update all fields
         $stmt = $connection->prepare("UPDATE tasks 
-            SET Title = ?, LocationType = ?, Location = ?, Category = ?, Price = ?, Description = ?, CompletionDate = ?, Notes = ?, EstimatedDuration = ? 
+            SET Title = ?, 
+            LocationType = ?, 
+            Location = ?, 
+            Category = ?, 
+            Price = ?, 
+            Description = ?, 
+            CompletionDate = ?, 
+            Notes = ?, 
+            EstimatedDuration = ? 
             WHERE TaskID = ?");
-        $stmt->bind_param("ssssdssssi", $title, $location_type, $location, $category, $price, $description, $completion_date, $notes, $estimated_duration, $task_id);
-
+                $stmt->bind_param("ssssdssssi", 
+                $title, 
+                $location_type, 
+                $location, 
+                $category, 
+                $price, 
+                $description, 
+                $completion_date, 
+                $notes, 
+                $estimated_duration, 
+                $task_id)
+            ;
         if ($stmt->execute()) {
             header("Location: comm_dashboard.php?success=Task updated");
             exit();

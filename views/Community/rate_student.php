@@ -1,28 +1,27 @@
 <?php
-include_once('../../includes/mysqlconnection.php');
-session_start();
+    include_once('../../includes/mysqlconnection.php');
+    session_start();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $studentID = (int)$_POST['student_id'];
-    $taskID = (int)$_POST['task_id'];
-    $rating = (int)$_POST['rating'];
-    $communityID = $_SESSION['UserID']; // Assuming the community ID is stored in the session
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // fetch datas needed para sa students para ma-rate
+        $studentID = (int)$_POST['student_id'];
+        $taskID = (int)$_POST['task_id'];
+        $rating = (int)$_POST['rating'];
+        $communityID = $_SESSION['UserID'];
 
-    // Fetch the community user ID to verify the task belongs to the community
-    $taskQuery = $connection->prepare("
-        SELECT CommunityID 
-        FROM tasks 
-        WHERE TaskID = ?
-    ");
-    $taskQuery->bind_param("i", $taskID);
-    $taskQuery->execute();
-    $taskResult = $taskQuery->get_result();
+        // Fetch the community user ID to verify the task belongs to the community
+        $taskQuery = $connection->prepare("
+            SELECT CommunityID 
+            FROM tasks 
+            WHERE TaskID = ?
+        ");
+        $taskQuery->bind_param("i", $taskID);
+        $taskQuery->execute();
+        $taskResult = $taskQuery->get_result();
 
-    if ($taskResult->num_rows > 0) {
-        $taskData = $taskResult->fetch_assoc();
-
-        // Check if the task belongs to the logged-in community
-        
+        if ($taskResult->num_rows > 0) {
+            $taskData = $taskResult->fetch_assoc();
+            
             // Check if a rating already exists for this task and student
             $checkRatingQuery = $connection->prepare("
                 SELECT RatingID 
@@ -45,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $rateQuery->bind_param("iii", $taskID, $studentID, $rating);
 
                 if ($rateQuery->execute()) {
+                    // -------------------------------TRUST POINTS-------------------------------
                     // Calculate trust points based on the rating
                     $trustPoints = 0;
                     if ($rating == 5) {
@@ -76,11 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $checkRatingQuery->close();
-        
-    } else {
-        echo "<script>alert('Task not found.'); window.location.href = 'comm_dashboard.php';</script>";
-    }
+            
+        } else {
+            echo "<script>alert('Task not found.'); window.location.href = 'comm_dashboard.php';</script>";
+        }
 
-    $taskQuery->close();
-}
+        $taskQuery->close();
+    }
 ?>
