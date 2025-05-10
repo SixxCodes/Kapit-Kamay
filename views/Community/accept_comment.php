@@ -1,5 +1,12 @@
 <?php
-    include_once('../../includes/mysqlconnection.php');
+    /* 
+    About: pang-accept ug comment, pang-hire. 
+    pag mupindot ug accept kay ang isAccepted sa database kay mahimog 1
+    false = 0
+    true = 1
+    false by default (meaning: wla pa na-accept) 
+    */
+    include_once('../../includes/mysqlconnection.php'); // connect database
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment_id'])) {
         $commentId = (int)$_POST['comment_id'];

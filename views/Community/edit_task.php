@@ -1,7 +1,8 @@
 <?php
     session_start();
-    include_once('../../includes/mysqlconnection.php');
+    include_once('../../includes/mysqlconnection.php'); // connect sa database
 
+    // ang gi-log in na email ug if community ba ang user
     if (!isset($_SESSION['login_email']) || $_SESSION['role'] !== 'Community') {
         echo "Unauthorized access.";
         exit();
@@ -10,7 +11,7 @@
     if (isset($_GET['task_id'])) {
         $taskID = $_GET['task_id'];
 
-        // kuha task details
+        // query para kuha task details
         $task_query = $connection->prepare("SELECT * FROM tasks WHERE TaskID = ?");
         $task_query->bind_param("i", $taskID);
         $task_query->execute();
@@ -56,9 +57,16 @@
             <select id="estimated_duration" name="estimated_duration" required>
                 <?php
                     $durations = [
-                        'less than 10 mins', '10 mins', '30 mins', '1 hour',
-                        '2 hours', '4 hours', '8 hours', '1 day',
-                        '2 days', '1 week'
+                        'less than 10 mins', 
+                        '10 mins', 
+                        '30 mins', 
+                        '1 hour',
+                        '2 hours', 
+                        '4 hours', 
+                        '8 hours', 
+                        '1 day',
+                        '2 days', 
+                        '1 week'
                     ];
                     foreach ($durations as $duration) {
                         $selected = ($task['EstimatedDuration'] === $duration) ? 'selected' : '';

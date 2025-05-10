@@ -2,9 +2,9 @@
     unsa gni mabuhat sa community dashboard?
     1. make post (done)
     2. view, edit, delete post (done)
-    3. view comments, profile
-    4. hire
-    5. rate 
+    3. view comments, profile (done)
+    4. hire (done)
+    5. rate (done)
 -->
 
 <!-- 
@@ -61,11 +61,12 @@
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Community Dashboard</title>
+        <title>Community Dashboard - <?php echo htmlspecialchars($firstName . ' ' . $lastName); ?> </title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="comm_style.css">
     </head>
     <body>
+
         <!-- ------------------------------SEARCH------------------------------ -->
         <input type="text" id="taskSearchBar" placeholder="Search your tasks..." onkeyup="filterMyTasks()" style="padding: 8px; width: 100%; max-width: 400px; margin-bottom: 20px;">
         
@@ -73,8 +74,7 @@
         <h1>Kapit-Kamay</h1>
         <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
 
-        <!-- -------------------PROFILE (ICON)------------------- -->
-        <!-- USER INFO MODAL -->
+        <!-- ------------------------------PROFILE MODAL------------------------------ -->
         <div id="userModal" class="userModal">
             <div class="userModal-content">
                 <form action="upload_profile.php" method="POST" enctype="multipart/form-data">
@@ -105,6 +105,7 @@
             </div>
         </div>
 
+        <!-- ------------------------------PROFILE ICON------------------------------ -->
         <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
             alt="Profile Picture" 
             id="userIcon" 
@@ -209,10 +210,31 @@
                 $status = 'Open';
 
                 $stmt = $connection->prepare("INSERT INTO tasks 
-                    (CommunityID, Title, Description, LocationType, Location, Category, CompletionDate, EstimatedDuration, Price, Notes, Status) 
+                    (CommunityID, 
+                    Title, 
+                    Description, 
+                    LocationType, 
+                    Location, 
+                    Category, 
+                    CompletionDate, 
+                    EstimatedDuration, 
+                    Price, 
+                    Notes, 
+                    Status) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-                $stmt->bind_param("isssssssdss", $communityID, $title, $description, $locationType, $location, $category, $completionDate, $estimatedDuration, $price, $notes, $status);
+                $stmt->bind_param("isssssssdss", 
+                $communityID, 
+                $title, 
+                $description, 
+                $locationType, 
+                $location, 
+                $category, 
+                $completionDate, 
+                $estimatedDuration, 
+                $price, 
+                $notes, 
+                $status);
 
                 if ($stmt->execute()) {
                     echo "<script>alert('Task posted successfully!'); window.location.href = 'comm_dashboard.php';</script>";
@@ -226,18 +248,17 @@
         
         <!-- ------------------------------ACTIVE POST------------------------------ -->
         <h2>Active Posts</h2>
-        
         <?php
-$active_query = $connection->prepare("
-    SELECT t.*, 
-           (SELECT COUNT(*) FROM comments c WHERE c.TaskID = t.TaskID) AS CommentCount
-    FROM tasks t
-    WHERE t.CommunityID = ? AND t.Status IN ('Open', 'Ongoing')
-    ORDER BY t.DatePosted DESC
-");
-$active_query->bind_param("i", $communityID);
-$active_query->execute();
-$active_result = $active_query->get_result();
+            $active_query = $connection->prepare("
+                SELECT t.*, 
+                    (SELECT COUNT(*) FROM comments c WHERE c.TaskID = t.TaskID) AS CommentCount
+                FROM tasks t
+                WHERE t.CommunityID = ? AND t.Status IN ('Open', 'Ongoing')
+                ORDER BY t.DatePosted DESC
+            ");
+            $active_query->bind_param("i", $communityID);
+            $active_query->execute();
+            $active_result = $active_query->get_result();
 
             if ($active_result->num_rows > 0) {
                 while ($task = $active_result->fetch_assoc()) {
@@ -293,7 +314,7 @@ $active_result = $active_query->get_result();
             $previous_query->close();
         ?>
 
-        <!-- ------------------------------VIEW POST------------------------------ -->
+        <!-- ------------------------------VIEW POST MODAL------------------------------ -->
         <!-- Task Details Modal -->
         <div id="taskModal" class="modal">
             <div class="modal-content">
@@ -376,8 +397,6 @@ $active_result = $active_query->get_result();
                     }
                     ?>
                 </div>
-
-                
             </div>
         </div>
         
@@ -394,6 +413,7 @@ $active_result = $active_query->get_result();
                 </div>
             </div>
         </div>
+        
         <?php
             // Get tasks gikan ani nga community user (dapat dli niya makita ang post sa uban nga community user)
             $task_query = $connection->prepare("SELECT * FROM tasks WHERE CommunityID = ? ORDER BY DatePosted DESC");
