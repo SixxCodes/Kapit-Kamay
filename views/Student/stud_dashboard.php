@@ -70,30 +70,30 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Student Dashboard</title>
-        <link rel="stylesheet" href="stud_style.css">
+        <title>Student Dashboard - <?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></title>
+        <link rel="stylesheet" href="css/stud_style.css">
     </head>
     <body>
         
         <!-- ------------------------------HEADER------------------------------ -->
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-            <input type="text" id="taskSearch" placeholder="Search by task title..." style="padding: 8px; width: 100%; max-width: 400px; margin-bottom: 20px;">
+        <div class="main-header">
+            <input type="text" class="search-bar" id="taskSearch" placeholder="Search by task title...">
 
             <!-- ------------------------------NOTIFICATIONS------------------------------ -->
             <!-- Notification Button -->
-            <div id="notif-container" style="position: relative; margin-left: 20px;">
-                <button id="notificationButton" onclick="toggleNotificationModal()" style="position: relative; background: none; border: none; cursor: pointer;">
+            <div class="notification-container" id="notif-container">
+                <button class="notification-button" id="notificationButton" onclick="toggleNotificationModal()">
                     <!-- Notification Icon -->
-                    <img src="../../assets/images/notification-bell-icon.jpg" alt="Notifications" style="width: 30px; height: 30px;">
+                    <img src="../../assets/images/notification-bell-icon.jpg" alt="Notifications">
                     <!-- Notification Red na ! -->
-                    <span id="notificationBadge" style="display: none; position: absolute; top: 0; right: 0; background: red; color: white; border-radius: 50%; width: 15px; height: 15px; font-size: 12px; display: flex; align-items: center; justify-content: center;">!</span>
+                    <span class="notification-badge" id="notificationBadge">!</span>
                 </button>
 
                 <!-- Notification Modal -->
-                <div id="notificationModal" style="display: none; position: absolute; top: 40px; right: 0; background: white; border: 1px solid #ccc; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width: 300px; z-index: 1000;">
-                    <div style="padding: 10px; max-height: 300px; overflow-y: auto;">
+                <div id="notificationModal">
+                    <div>
                         <h4>Notifications</h4>
-                        <ul id="notificationList" style="list-style: none; padding: 0; margin: 0;">
+                        <ul id="notificationList">
                             <!-- Diri ma-add ang notifications -->
                         </ul>
                     </div>
@@ -141,8 +141,7 @@
                 ?>
 
                 <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
-                    alt="Profile Picture" 
-                    style="width:100px; height:100px; border-radius:50%;">
+                    alt="Profile Picture">
 
                 <span class="userClose" onclick="closeUserModal()">&times;</span>
                 <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
@@ -156,10 +155,9 @@
             </div>
         </div>
 
-        <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
+        <img class="profile-picture" src="<?php echo htmlspecialchars($profileSrc); ?>" 
             alt="Profile Picture" 
             id="userIcon" 
-            style="width:100px; height:100px; border-radius:50%; cursor: pointer;"
             onclick="openUserModal()">
         
         <!-- ------------------------------TASK DETAILS------------------------------ -->
@@ -183,7 +181,7 @@
 
             // Check if the student has reached the limit of 2 ongoing tasks
             if ($ongoingTaskCount >= 2) {
-            echo "<p style='color: red;'><strong>You have reached the limit of 2 ongoing tasks. Complete a task to accept new ones.</strong></p>";
+            echo "<p class='ongoing-task-limit-warning'><strong>You have reached the limit of 2 ongoing tasks. Complete a task to accept new ones.</strong></p>";
             }
 
             // ------------------------------COMPLETED TASKS PHP------------------------------ 
@@ -202,7 +200,7 @@
 
         <!-- ------------------------------STUDENT PROFILE SUMMARY------------------------------  -->
         <!-- Display Trust Points, Rating, and Completed Tasks -->
-        <div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 10px; border-radius: 5px; background-color: #f9f9f9;">
+        <div class="student-profile-summary-container">
             <p><strong>Trust Points:</strong> <?= htmlspecialchars($user['TrustPoints']) ?></p>
     
             <?php
@@ -220,9 +218,9 @@
             $ratingQuery->close();
             ?>
             
-            <p><strong>Rating:</strong>
+            <p class="student-profile-summary-rating"><strong>Rating:</strong>
                 <?php for ($i = 1; $i <= 5; $i++): ?>
-                    <span style="color: gold;"><?= $i <= $avgRating ? "★" : "☆" ?></span>
+                    <span><?= $i <= $avgRating ? "★" : "☆" ?></span>
                 <?php endfor; ?>
             </p>
             
@@ -238,7 +236,7 @@
                 <?php $modalCount = 0; ?>
                 <?php while ($task = $ongoingTasksResult->fetch_assoc()): ?>
                     <?php $modalId = "ongoing-task-modal_" . $modalCount++; ?>
-                    <div class="ongoing-task-box" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; cursor: pointer;" onclick="document.getElementById('<?= $modalId ?>').style.display='block'">
+                    <div class="ongoing-task-box" onclick="document.getElementById('<?= $modalId ?>').style.display='block'">
                         <h4 class="ongoing-task-title"><?= htmlspecialchars($task['Title']) ?></h4>
                         <p><strong>Posted By:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
                         <p><strong>Location:</strong> <?= htmlspecialchars($task['Location']) ?></p>
@@ -248,14 +246,13 @@
 
                     <!-- Modal for Ongoing Task Details -->
                     <div id="<?= $modalId ?>" class="modal">
-                        <div class="modal-content" style="max-height: 75vh; overflow-y: auto;">
+                        <div class="modal-content modal-content-ongoing-tasks">
                             <span class="close" onclick="document.getElementById('<?= $modalId ?>').style.display='none'">&times;</span>
                             <h2><?= htmlspecialchars($task['Title']) ?></h2>
                             <p><strong>Posted On:</strong> <?= date("F j, Y, g:i a", strtotime($task['DatePosted'])) ?></p>
                             <p><strong>Posted:</strong> <?= (new DateTime($task['DatePosted']))->diff(new DateTime())->days ?> day(s) ago</p>
                             <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
-                                alt="Profile Picture" 
-                                style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; margin-bottom: 10px;">
+                                alt="Profile Picture">
                             <p><strong>Status:</strong> <?= htmlspecialchars($task['Status']) ?></p>
                             <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
                             <p><strong>Location:</strong> <?= htmlspecialchars($task['Location']) ?></p>
@@ -297,8 +294,7 @@
             
             <div class="task-box" onclick="document.getElementById('<?= $modalId ?>').style.display='block'">
                 <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
-                            alt="Profile Picture" 
-                            style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+                            alt="Profile Picture">
                 <p class="task-title"><strong><?= htmlspecialchars($task['Title']) ?></strong></p>
                 <p><?= htmlspecialchars($task['LocationType']) ?></p>
                 <p><?= htmlspecialchars($task['CompletionDate']) ?></p>
@@ -308,7 +304,7 @@
 
             <!-- ------------------------------VIEW POSTS (MODAL, DETAILED)------------------------------ -->
             <div id="<?= $modalId ?>" class="modal">
-                <div class="modal-content" style="max-height: 75vh; overflow-y: auto;">
+                <div class="modal-content">
                     <span class="close" onclick="document.getElementById('<?= $modalId ?>').style.display='none'">&times;</span>
                     <h2><?= htmlspecialchars($task['Title']) ?></h2>
                     <p><strong>Posted On:</strong> <?= date("F j, Y, g:i a", strtotime($task['DatePosted'])) ?></p>
@@ -319,9 +315,8 @@
                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;"> 
                     -->
 
-                    <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
+                    <img class="view-post-modal-community-profile-picture" src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
                         alt="Profile Picture" 
-                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; cursor: pointer;"
                         onclick="openCommunityProfileModal('<?= htmlspecialchars($task['ProfilePicture']) ?>', '<?= htmlspecialchars($task['FirstName'] . ' ' . $task['LastName']) ?>', '<?= htmlspecialchars($task['PosterEmail']) ?>', 'Community')">
                     <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
                     <p><strong>Status:</strong> <?= htmlspecialchars($task['Status']) ?></p>
@@ -337,11 +332,11 @@
                     <p><strong>Notes:</strong> <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
 
                     <!-- ------------------------------COMMENT SECTION------------------------------ -->
-                    <div style="margin-top: 20px;">
+                    <div class="view-posts-comments-container">
                         <h3>Comments</h3>
                         <?php if ($commentResult->num_rows > 0): ?>
                             <?php while ($comment = $commentResult->fetch_assoc()): ?>
-                                <div class="comment-box" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 10px;">
+                                <div class="comment-box">
                                     <?php
                                     // Fetch task poster's profile picture
                                     $posterStmt = $connection->prepare("SELECT ProfilePicture FROM users WHERE UserID = ?");
@@ -352,7 +347,7 @@
                                     ?>
                                     
                                     <!-- Display profile picture of the student who commented -->
-                                    <img src="../Student/<?= htmlspecialchars($posterData['ProfilePicture']) ?>" alt="Poster Profile Picture" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; margin-bottom: 10px;">
+                                    <img src="../Student/<?= htmlspecialchars($posterData['ProfilePicture']) ?>" alt="Poster Profile Picture">
 
                                     <p><strong><?= htmlspecialchars($comment['FirstName'] . " " . $comment['LastName']) ?></strong></p>
                                     
@@ -371,9 +366,9 @@
                                         $avgRating = round($ratingData['avg_rating']);
                                     ?>
                                     
-                                    <p>Rating:
+                                    <p class="student-comment-rating">Rating:
                                         <?php for ($i = 1; $i <= 5; $i++): ?>
-                                            <span style="color: gold;"><?= $i <= $avgRating ? "★" : "☆" ?></span>
+                                            <span><?= $i <= $avgRating ? "★" : "☆" ?></span>
                                         <?php endfor; ?>
                                     </p>
                                     
@@ -387,14 +382,14 @@
                     </div>
 
                     <!-- ------------------------------LEAVE A COMMENT------------------------------ -->
-                    <div style="margin-top: 30px;">
+                    <div class="leave-a-comment-container">
                         <h3>Leave a Comment</h3>
                         <?php if ($ongoingTaskCount >= 2): ?>
-                            <p style="color: red;"><strong>You cannot leave a comment because you already have 2 ongoing tasks. Complete a task to comment on new ones.</strong></p>
+                            <p><strong>You cannot leave a comment because you already have 2 ongoing tasks. Complete a task to comment on new ones.</strong></p>
                         <?php else: ?>
                             <form action="submit_comment.php" method="POST">
                                 <input type="hidden" name="task_id" value="<?= $taskId ?>">
-                                <textarea name="comment_content" rows="4" style="width: 100%;" required placeholder="Write your comment..."></textarea>
+                                <textarea name="comment_content" rows="4" required placeholder="Write your comment..."></textarea>
                                 <br>
                                 <button type="submit">Post Comment</button>
                             </form>
@@ -409,10 +404,10 @@
         <?php endif; ?>
 
         <!-- Community Profile Modal -->
-        <div id="communityProfileModal" class="modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width: 300px; z-index: 1000; padding: 20px;">
-            <span class="close" onclick="closeCommunityProfileModal()" style="cursor: pointer; float: right; font-size: 20px;">&times;</span>
-            <div style="text-align: center;">
-                <img id="communityProfilePicture" src="" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px;">
+        <div id="communityProfileModal" class="modal community-profile-modal-click-on-task">
+            <span class="close" onclick="closeCommunityProfileModal()">&times;</span>
+            <div class="community-profile-modal-click-on-task-content">
+                <img id="communityProfilePicture" src="" alt="Profile Picture">
                 <h3 id="communityFullName"></h3>
                 <p><strong>Email:</strong> <span id="communityEmail"></span></p>
                 <p><strong>Role:</strong> <span id="communityRole"></span></p>

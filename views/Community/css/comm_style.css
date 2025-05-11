@@ -1,0 +1,150 @@
+/* --------------------------------------HEADER-------------------------------------- */
+/* --------------------------------------SEARCH BAR-------------------------------------- */
+.search-bar {
+    padding: 8px; 
+    width: 100%; 
+    max-width: 400px; 
+    margin-bottom: 20px;
+}
+
+/* --------------------------------------USER-------------------------------------- */
+/* User Modal styles */
+.userModal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.userModal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 10px;
+    position: relative;
+}
+
+.userModal-content img {
+    width:100px; 
+    height:100px; 
+    border-radius:50%;
+}
+
+.userClose {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* User */
+.user-icon {
+    width:100px; 
+    height:100px; 
+    border-radius:50%; 
+    cursor: pointer;
+}
+
+/* --------------------------------------USER SUMMARY-------------------------------------- */
+.display-counts-container {
+    margin-top: 10px;
+}
+
+/* --------------------------------------TASKS-------------------------------------- */
+.create-task-modal {
+    display:none;
+}
+
+.previous-task-container {
+    border:1px solid #aaa; 
+    padding:10px; 
+    margin-bottom:10px; 
+    background:#f0f0f0;
+}
+
+/* Modal styles */
+.modal {
+    display: none; /* Hidden sa */
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; /* Enable scroll ug kailangan */
+    background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
+}
+
+/* Modal content */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+}
+
+/* close button */
+.close-view-post-modal {
+    color: black;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 25px;
+}
+
+.close-view-post-modal:hover,
+.close-view-post-modal:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#taskModal .modal-content img {
+    width:100px; 
+    height:100px; 
+    border-radius:50%;
+}
+
+/* --------------------------------------COMMENTS-------------------------------------- */
+.comment-box {
+    border: 1px solid #ccc; 
+    padding: 10px; 
+    margin-bottom: 10px;
+}
+
+#profileModal {
+    display: none;
+}
+
+#profileModal .modal-content {
+    padding: 20px; 
+    border-radius: 10px; 
+    max-width: 400px; 
+    margin: auto;
+}
+
+#profileModal .modal-content .close {
+    cursor: pointer; 
+    float: right; 
+    font-size: 20px;
+}
+
+#profileModal .modal-content div {
+    text-align: center;
+}
+
+#profileModal .modal-content div img {
+    width: 100px; 
+    height: 100px; 
+    border-radius: 50%; 
+    margin-bottom: 10px;
+}

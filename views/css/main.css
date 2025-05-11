@@ -1,0 +1,13 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.main-header {
+    color: pink;
+}
+
+.main-header img{
+    max-width: 20px;
+}

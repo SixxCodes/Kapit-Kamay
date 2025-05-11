@@ -63,12 +63,20 @@
         <meta charset="UTF-8">
         <title>Community Dashboard - <?php echo htmlspecialchars($firstName . ' ' . $lastName); ?> </title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="comm_style.css">
+        <link rel="stylesheet" href="css/comm_style.css">
+        <!-- <link rel="stylesheet" href="../css/main.css"> -->
     </head>
-    <body>
+    <body> 
+
+        <header class="main-header">
+            <!-- <img src="../../assets/images/logo1.png" alt="Logo Sample"> -->
+            <h1>Kapit-Kamay</h1>
+            <h2>Student Dashboard</h2>
+            <div class="notifications"></div>
+        </header>
 
         <!-- ------------------------------SEARCH------------------------------ -->
-        <input type="text" id="taskSearchBar" placeholder="Search your tasks..." onkeyup="filterMyTasks()" style="padding: 8px; width: 100%; max-width: 400px; margin-bottom: 20px;">
+        <input type="text" class="search-bar" id="taskSearchBar" placeholder="Search your tasks..." onkeyup="filterMyTasks()">
         
         <!-- ------------------------------PROFILE------------------------------ -->
         <h1>Kapit-Kamay</h1>
@@ -89,7 +97,7 @@
 
                 <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
                     alt="Profile Picture" 
-                    style="width:100px; height:100px; border-radius:50%;">
+                >
 
                 <span class="userClose" onclick="closeUserModal()">&times;</span>
                 <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
@@ -108,8 +116,8 @@
         <!-- ------------------------------PROFILE ICON------------------------------ -->
         <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
             alt="Profile Picture" 
+            class="user-icon"
             id="userIcon" 
-            style="width:100px; height:100px; border-radius:50%; cursor: pointer;"
             onclick="openUserModal()">
 
         <!-- -------------------COUNT TASKS------------------- -->
@@ -135,7 +143,7 @@
         ?>
 
         <!-- Display counts -->
-        <div style="margin-top: 10px;">
+        <div class="display-counts-container">
             <p><strong>Total Active Task(s):</strong> <?php echo $activeTasks; ?></p>
             <p><strong>Total Previous Task(s):</strong> <?php echo $previousTasks; ?></p>
             <p><strong>Total Task(s) Posted:</strong> <?php echo $totalTasks; ?></p>
@@ -146,7 +154,7 @@
         <button onclick="document.getElementById('createTaskModal').style.display='block'">+ Create Task</button>
 
         <!-- Create Task -->
-        <div id="createTaskModal" style="display:none;">
+        <div class="create-task-modal" id="createTaskModal">
             <form action="" method="POST">
                 <h3>Create New Task</h3>
 
@@ -300,7 +308,7 @@
 
             if ($previous_result->num_rows > 0) {
                 while ($task = $previous_result->fetch_assoc()) {
-                    echo "<div style='border:1px solid #aaa; padding:10px; margin-bottom:10px; background:#f0f0f0;'>";
+                    echo "<div class='previous-task-container'>";
                     echo "<h3>" . htmlspecialchars($task['Title']) . "</h3>";
                     echo "<p><strong>Category:</strong> " . htmlspecialchars($task['Category']) . "</p>";
                     echo "<p><strong>Completion Date:</strong> " . htmlspecialchars($task['CompletionDate']) . "</p>";
@@ -318,12 +326,11 @@
         <!-- Task Details Modal -->
         <div id="taskModal" class="modal">
             <div class="modal-content">
-                <span class="close" onclick="closeTaskModal()" style="color: black;">&times;</span>
+                <span class="close-view-post-modal" onclick="closeTaskModal()">&times;</span>
                 <h2>Posted by <?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
                 <p><em>Posted <span id="modalTimeAgo"></span></em></p>
                 <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
-                    alt="Profile Picture" 
-                    style="width:100px; height:100px; border-radius:50%;">
+                    alt="Profile Picture">
                     
                 <!-- Task Title -->
                 <h2 id="modalTitle"></h2>
@@ -381,7 +388,7 @@
                         if ($comments_result->num_rows > 0) {
                             while ($comment = $comments_result->fetch_assoc()) {
                                 ?>
-                                <div class="comment-box" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+                                <div class="comment-box">
                                     <p><strong><?php echo htmlspecialchars($comment['FirstName'] . ' ' . $comment['LastName']); ?></strong></p>
                                     <p><em>Posted on <?php echo htmlspecialchars($comment['DatePosted']); ?></em></p>
                                     <p><strong>Trust Points:</strong> <?php echo htmlspecialchars($comment['TrustPoints']); ?></p>
@@ -401,11 +408,11 @@
         </div>
         
         <!-- Profile Modal sa student na nag-comment-->
-        <div id="profileModal" class="modal" style="display: none;">
-            <div class="modal-content" style="padding: 20px; border-radius: 10px; max-width: 400px; margin: auto;">
-                <span class="close" onclick="closeProfileModal()" style="cursor: pointer; float: right; font-size: 20px;">&times;</span>
-                <div style="text-align: center;">
-                    <img id="modalProfilePicture" src="" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px;">
+        <div id="profileModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeProfileModal()">&times;</span>
+                <div>
+                    <img id="modalProfilePicture" src="" alt="Profile Picture">
                     <h2 id="modalFullName"></h2>
                     <p><strong>Email:</strong> <span id="modalEmail"></span></p>
                     <p><strong>Role:</strong> <span id="modalRole"></span></p>

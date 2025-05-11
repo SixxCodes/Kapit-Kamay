@@ -1,0 +1,318 @@
+/* --------------------------------------HEADER-------------------------------------- */
+.main-header {
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    margin-bottom: 20px;
+}
+
+/* --------------------------------------SEARCH BAR-------------------------------------- */
+
+.search-bar {
+    padding: 8px; 
+    width: 100%; 
+    max-width: 400px; 
+    margin-bottom: 20px;
+}
+
+/* --------------------------------------NOTIFICATIONS-------------------------------------- */
+.notification-container {
+    position: relative; 
+    margin-left: 20px;
+}
+
+.notification-button {
+    position: relative; 
+    background: none; 
+    border: none; 
+    cursor: pointer;
+}
+
+.notification-button img {
+    width: 30px; 
+    height: 30px;
+}
+
+.notification-badge {
+    display: none; 
+    position: absolute; 
+    top: 0; 
+    right: 0; 
+    background: red; 
+    color: white; 
+    border-radius: 50%; 
+    width: 15px; 
+    height: 15px; 
+    font-size: 12px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+}
+
+#notificationButton img {
+    width: 30px;
+    height: 30px;
+}
+
+#notificationModal {
+    display: none; 
+    position: absolute; 
+    top: 40px; 
+    right: 0; 
+    background: white; 
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+    width: 300px; 
+    z-index: 1000;
+}
+
+#notificationModal div {
+    padding: 10px; 
+    max-height: 300px; 
+    overflow-y: auto;
+}
+
+#notificationModal div h4 {
+    margin: 0 0 10px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#notificationModal div ul {
+    list-style: none; 
+    padding: 0; 
+    margin: 0;
+}
+
+#notificationModal div ul li {
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+}
+
+#notificationModal ul li:last-child {
+    border-bottom: none;
+}
+
+#notificationModal {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* --------------------------------------BODY-------------------------------------- */
+
+/* --------------------------------------USER PROFILE PICTURE ICON-------------------------------------- */
+.profile-picture {
+    width:100px; 
+    height:100px; 
+    border-radius:50%; 
+    cursor: pointer;
+}
+
+/* --------------------------------------USER MODAL-------------------------------------- */
+.userModal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.userModal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 10px;
+    position: relative;
+}
+
+.userModal-content img {
+    width:100px; 
+    height:100px; 
+    border-radius:50%;
+}
+
+.userClose {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* --------------------------------------USER DETAILS SUMMARY, STUDENT PROFILE SUMMARY-------------------------------------- */
+.ongoing-task-limit-warning {
+    color: red;
+}
+
+.student-profile-summary-container {
+    margin-bottom: 20px; 
+    border: 1px solid #ccc; 
+    padding: 10px; 
+    border-radius: 5px; 
+    background-color: #f9f9f9;
+}
+
+.student-profile-summary-container .student-profile-summary-rating span {
+    color: gold;
+}
+
+.ongoing-task-box {
+    border: 1px solid #ccc; 
+    padding: 10px; 
+    margin-bottom: 10px; 
+    cursor: pointer;
+}
+
+.modal-content-ongoing-tasks {
+    max-height: 75vh; 
+    overflow-y: auto;
+}
+
+.modal-content-ongoing-tasks img {
+    width: 50px; 
+    height: 50px; 
+    object-fit: cover; 
+    border-radius: 50%; 
+    margin-bottom: 10px;
+}
+
+/* --------------------------------------TASK BOX-------------------------------------- */
+.task-box {
+    border: 1px solid #aaa;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #f9f9f9;
+}
+
+.task-box:hover {
+    background-color: #f1f1f1;
+}
+
+.task-box img {
+    width: 50px; 
+    height: 50px; 
+    object-fit: cover; 
+    border-radius: 50%;
+}
+
+/* --------------------------------------TASK MODAL-------------------------------------- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    padding-top: 60px;
+    left: 0; 
+    top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: auto;
+    padding: 30px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 700px;
+    border-radius: 10px;
+    position: relative;
+    max-height: 75vh; 
+    overflow-y: auto;
+}
+
+.view-post-modal-community-profile-picture {
+    width: 50px; 
+    height: 50px; 
+    object-fit: cover; 
+    border-radius: 50%; 
+    cursor: pointer;
+}
+
+.close {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #000;
+}
+
+.view-posts-comments-container {
+    margin-top: 20px;
+}
+
+.view-posts-comments-container .comment-box {
+    margin-bottom: 15px; 
+    padding: 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 10px;
+}
+
+.view-posts-comments-container .comment-box img {
+    width: 50px; 
+    height: 50px; 
+    object-fit: cover; 
+    border-radius: 50%; 
+    margin-bottom: 10px;
+}
+
+.view-posts-comments-container .comment-box .student-comment-rating span{
+    color: gold;
+}
+
+.leave-a-comment-container {
+    margin-top: 30px;
+}
+
+.leave-a-comment-container p {
+    color: red;
+}
+
+.leave-a-comment-container form textarea {
+    width: 100%;
+}
+
+.community-profile-modal-click-on-task {
+    display: none; 
+    position: fixed; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    background: white; 
+    border: 1px solid #ccc; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+    width: 300px; 
+    z-index: 1000; 
+    padding: 20px;
+}
+
+.community-profile-modal-click-on-task .close {
+    cursor: pointer; 
+    float: right; 
+    font-size: 20px;
+}
+
+.community-profile-modal-click-on-task .community-profile-modal-click-on-task-content {
+    text-align: center;
+}
+
+.community-profile-modal-click-on-task .community-profile-modal-click-on-task-content img {
+    width: 100px; 
+    height: 100px; 
+    border-radius: 50%; 
+    margin-bottom: 10px;
+}
