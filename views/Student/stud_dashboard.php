@@ -352,18 +352,16 @@
                                     <p><strong><?= htmlspecialchars($comment['FirstName'] . " " . $comment['LastName']) ?></strong></p>
                                     
                                     <?php
-                                        // Get rating for this commenter (if available)
-                                        $studentId = $comment['StudentID'];
                                         $ratingStmt = $connection->prepare("
                                             SELECT AVG(Rating) as avg_rating
                                             FROM taskratings
-                                            WHERE TaskID = ? AND StudentID = ?
+                                            WHERE StudentID = ?
                                         ");
-                                        $ratingStmt->bind_param("ii", $taskId, $studentId);
+                                        $ratingStmt->bind_param("i", $comment['StudentID']);
                                         $ratingStmt->execute();
                                         $ratingResult = $ratingStmt->get_result();
                                         $ratingData = $ratingResult->fetch_assoc();
-                                        $avgRating = round($ratingData['avg_rating']);
+                                        $avgRating = isset($ratingData['avg_rating']) ? round($ratingData['avg_rating']) : 0; // Default to 0 if no ratings
                                     ?>
                                     
                                     <p class="student-comment-rating">Rating:
