@@ -80,7 +80,7 @@ function openTaskModal(taskElement) {
     document.getElementById('modalTaskID').value = taskId;
     fetchComments(taskId);
     
-    document.getElementById('editTaskLink').href = 'edit_task.php?task_id=' + taskId;
+
     document.getElementById('deleteTaskLink').href = 'delete_task.php?task_id=' + taskId;
 
     // current task status sa dropdown
@@ -127,24 +127,43 @@ function updateTaskStatus(selectElement) {
     const status = selectElement.value;
     const taskID = document.getElementById('modalTaskID').value;
 
-    // Send AJAX request
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "update_task.php", true);
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-    xhr.onload = function () {
-        if (xhr.status === 200) {
-            alert("Task status updated to " + status);
-            document.getElementById('modalStatus').innerText = status;
-
-            // closeTaskModal();
-            // location.reload();
+    if (status === 'Edit') {
+        // Redirect to the edit task page
+        window.location.href = `edit_task.php?task_id=${taskID}`;
+        return; // Exit the function to prevent further execution
+    } else if (status === 'Delete') {
+        // Confirm before deleting the task
+        const confirmDelete = confirm('Are you sure you want to delete this task?');
+        if (confirmDelete) {
+            window.location.href = `delete_task.php?task_id=${taskID}`;
         } else {
-            alert("Error updating task status.");
+            // Reset the dropdown to its previous value if the user cancels
+            selectElement.value = 'Open'; // Adjust this to the default or previous value
         }
-    };
+        return; // Exit the function to prevent further execution
+    }
 
-    xhr.send("task_id=" + encodeURIComponent(taskID) + "&task_status=" + encodeURIComponent(status));
+    // Handle status updates for valid statuses (e.g., Open, Closed)
+    if (status === 'Open' || status === 'Closed') {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "update_task.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                alert("Task status updated to " + status);
+                document.getElementById('modalStatus').innerText = status;
+
+                // Optionally reload or close the modal
+                // closeTaskModal();
+                // location.reload();
+            } else {
+                alert("Error updating task status.");
+            }
+        };
+
+        xhr.send("task_id=" + encodeURIComponent(taskID) + "&task_status=" + encodeURIComponent(status));
+    }
 }
 
 // ------------------------------COMMENTS------------------------------

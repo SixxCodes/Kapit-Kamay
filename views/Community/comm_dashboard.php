@@ -64,7 +64,7 @@
         <title><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?>'s Dashboard </title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="css/comm_style.css">
-        <link rel="stylesheet" href="css/mobile.css">
+        <link rel="stylesheet" href="css/mobile_style.css">
         <link rel="shortcut icon" href="../../assets/images/logo1.png" type="image/x-icon">
         <!-- <link rel="stylesheet" href="../css/main.css"> -->
     </head>
@@ -177,7 +177,7 @@
                 <div class="body-content-task">
                     <!-- ------------------------------SEARCH------------------------------ -->
                     <div class="search-bar-container">
-                        <input type="text" class="search-bar" id="taskSearchBar" placeholder="Search your tasks..." onkeyup="filterMyTasks()">
+                        <input type="text" class="search-bar" id="taskSearchBar" placeholder="🔍 Search your tasks..." onkeyup="filterMyTasks()">
                     </div>
                     <!-- ------------------------------CREATE POST------------------------------ -->
                     <h2>Active Posts</h2>
@@ -185,51 +185,76 @@
                     <!-- Create Task -->
                     <div class="create-task-modal" id="createTaskModal">
                         <form action="" method="POST">
-                            <h3>Create New Task</h3>
+                            <div class="create-task-modal-content">
+                                <div class="create-task-header-container">
+                                    <div class="create-task-header-item-1">
+                                        <input type="text" placeholder="Enter task title here" name="title" maxlength="30" required><br>
+                                    </div>
+                                    <div class="create-task-header-item-2">
+                                        <input type="submit" name="create_task" value="Done">
+                                        <button type="button" onclick="document.getElementById('createTaskModal').style.display='none'">Cancel</button>
+                                    </div>
+                                </div>
 
-                            <label>Title:</label>
-                            <input type="text" name="title" required><br>
+                                <div class="create-task-content">
+                                    <div class="create-task-content-1">
+                                        <div class="create-task-content-1-items">
+                                            <label>📍 Location Type</label><br/>
+                                            <select name="location_type" required>
+                                                <option value="Online">Online</option>
+                                                <option value="In-person">In-person</option>
+                                            </select><br>
+                                        </div>
+                                        
+                                        <div class="create-task-content-1-items">
+                                            <label>📍 Location</label><br/>
+                                            <input placeholder="Enter Location" type="text" name="location" required><br>
+                                        </div>
+                                    </div>
 
-                            <label>Location Type:</label>
-                            <select name="location_type" required>
-                                <option value="Online">Online</option>
-                                <option value="In-person">In-person</option>
-                            </select><br>
+                                    <div class="create-task-content-2">
+                                        <div class="create-task-content-2-items">
+                                            <label>📅 Completion Date</label><br/>
+                                            <input type="date" name="completion_date" required><br>
+                                        </div>
+                                        <div class="create-task-content-2-items">
+                                            <label>⏳ Estimated Duration</label><br/>
+                                            <select name="estimated_duration" required>
+                                                <option value="less than 10 mins">less than 10mins</option>
+                                                <option value="10 mins">10 mins</option>
+                                                <option value="30 mins">30 mins</option>
+                                                <option value="1 hour">1 hour</option>
+                                                <option value="2 hours">2 hours</option>
+                                                <option value="4 hours">4 hours</option>
+                                                <option value="8 hours">8 hours</option>
+                                                <option value="1 day">1 day</option>
+                                                <option value="2 days">2 days</option>
+                                                <option value="1 week">1 week</option>
+                                            </select><br>
+                                        </div>
+                                    </div>
 
-                            <label>Location (if In-person):</label>
-                            <input type="text" name="location"><br>
+                                    <div class="create-task-content-3">
+                                        <div class="create-task-content-3-items">
+                                            <label>🧩 Category</label><br/>
+                                            <input placeholder="Enter Category" type="text" name="category" required><br>
+                                        </div>
 
-                            <label>Completion Date:</label>
-                            <input type="date" name="completion_date"><br>
-                    
-                            <label>Category:</label>
-                            <input type="text" name="category" required><br>
+                                        <div class="create-task-content-3-items">
+                                            <label>💵 Price</label><br/>
+                                            <input placeholder="Enter Price" type="number" name="price" step="0.01" max="99999" required><br>
+                                        </div>
+                                    </div>
 
-                            <label>Estimated Duration:</label>
-                            <select name="estimated_duration" required>
-                                <option value="less than 10 mins">less than 10mins</option>
-                                <option value="10 mins">10 mins</option>
-                                <option value="30 mins">30 mins</option>
-                                <option value="1 hour">1 hour</option>
-                                <option value="2 hours">2 hours</option>
-                                <option value="4 hours">4 hours</option>
-                                <option value="8 hours">8 hours</option>
-                                <option value="1 day">1 day</option>
-                                <option value="2 days">2 days</option>
-                                <option value="1 week">1 week</option>
-                            </select><br>
+                                    <div class="create-task-textareas">
+                                        <label>Task Description</label><br/>
+                                        <textarea placeholder="Enter task description here..." name="description" required></textarea><br>
 
-                            <label>Price:</label>
-                            <input type="number" name="price" step="0.01" required><br>
-
-                            <label>Task Description:</label>
-                            <textarea name="description" required></textarea><br>
-
-                            <label>Notes / Requirements (optional):</label>
-                            <textarea name="notes"></textarea><br>
-
-                            <input type="submit" name="create_task" value="Post Task">
-                            <button type="button" onclick="document.getElementById('createTaskModal').style.display='none'">Cancel</button>
+                                        <label>Notes / Requirements (Optional)</label><br/>
+                                        <textarea placeholder="Enter notes / requirements here..." name="notes"></textarea><br>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </div>
 
@@ -283,11 +308,11 @@
                         }
                     ?>
                     
+                    <!-- ------------------------------ACTIVE POSTS------------------------------ -->
                     <div class="create-task-grid-container">
                         <!-- Plus button to open create task -->
                         <button class="create-button square" onclick="document.getElementById('createTaskModal').style.display='block'">+</button>
 
-                        <!-- ------------------------------ACTIVE POSTS------------------------------ -->
                         <?php
                             $active_query = $connection->prepare("
                                 SELECT t.*, 
@@ -319,23 +344,30 @@
                                     onclick='openTaskModal(this)'>
                                 <div class='active-task-header'>
                                     <h3>" . htmlspecialchars($task['Title']) . "</h3>
-                                    <p>" . $task['CommentCount'] . "</p>
+                                    <p>💬" . $task['CommentCount'] . "</p>
                                 </div>
                                 <div class='active-task-content'>
-                                    <div>
+                                    <div class='active-task-profile-pic'>
                                         <img src='" . $profileSrc . "' alt='Profile Picture' class='poster-profile-picture'>
                                     </div>
-                                    <div>
-                                        <p>" . htmlspecialchars($task['LocationType']) . "</p>
+                                    <div class='active-task-information-container'>
+                                        <div class='active-task-owner'>
+                                            <p>Posted by: " . htmlspecialchars($firstName . ' ' . $lastName) . "</p>
+                                        </div>
+                                        <div class='active-task-detail-container'>
+                                            <div class='active-task-detail'>
+                                                <p>📍" . htmlspecialchars($task['LocationType']) . "</p>
+                                            </div>
+                                            <div class='active-task-detail'>
+                                                <p>📅" . htmlspecialchars($task['CompletionDate']) . "</p>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p>" . htmlspecialchars($task['CompletionDate']) . "</p>
+                                    <div class='active-task-price'>
+                                        <p><strong>₱" . number_format($task['Price']) . "</strong></p>
                                     </div>
-                                    <div>
-                                        <p>₱" . number_format($task['Price'], 2) . "</p>
-                                    </div>
+
                                 </div>
-                                
                             </div>";
                                 }
                             } else {
@@ -345,76 +377,95 @@
                         ?>
                     </div>
 
-                    <!-- ------------------------------PREVIOUS POST------------------------------ -->
-                    <h2>Previous Posts</h2>
-                    <?php
-                        $previous_query = $connection->prepare("SELECT * FROM tasks WHERE CommunityID = ? AND Status = 'Closed' ORDER BY DatePosted DESC");
-                        $previous_query->bind_param("i", $communityID);
-                        $previous_query->execute();
-                        $previous_result = $previous_query->get_result();
-
-                        if ($previous_result->num_rows > 0) {
-                            while ($task = $previous_result->fetch_assoc()) {
-                                echo "<div class='previous-task-container'>";
-                                echo "<h3>" . htmlspecialchars($task['Title']) . "</h3>";
-                                echo "<p><strong>Category:</strong> " . htmlspecialchars($task['Category']) . "</p>";
-                                echo "<p><strong>Completion Date:</strong> " . htmlspecialchars($task['CompletionDate']) . "</p>";
-                                echo "<p><strong>Price:</strong> ₱" . number_format($task['Price'], 2) . "</p>";
-                                echo "<p><strong>Status:</strong> " . htmlspecialchars($task['Status']) . "</p>";
-                                echo "</div>";
-                            }
-                        } else {
-                            echo "<p>No previous posts found.</p>";
-                        }
-                        $previous_query->close();
-                    ?>
-
                     <!-- ------------------------------VIEW POST MODAL------------------------------ -->
                     <!-- Task Details Modal -->
                     <div id="taskModal" class="modal">
                         <div class="modal-content">
-                            <span class="close-view-post-modal" onclick="closeTaskModal()">&times;</span>
-                            <h2>Posted by <?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
-                            <p><em>Posted <span id="modalTimeAgo"></span></em></p>
-                            <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
-                                alt="Profile Picture">
-                                
-                            <!-- Task Title -->
-                            <h2 id="modalTitle"></h2>
                             
-                            <!-- Task Details -->
-                            <p><strong>Location:</strong> <span id="modalLocation"></span></p>
-                            <p><strong>Completion Date:</strong> <span id="modalCompletionDate"></span></p>
-                            <p><strong>Category:</strong> <span id="modalCategory"></span></p>
-                            <p><strong>Estimated Duration:</strong> <span id="modalEstimatedDuration"></span></p>
-                            <!-- <p><strong>Location Type:</strong> <span id="modalLocationType"></span></p> -->
-                            <p><strong>Price:</strong> ₱<span id="modalPrice"></span></p>
-                            <p><strong>Description:</strong> <span id="modalDescription"></span></p>
-                            <p><strong>Contact via Email:</strong></strong> <?php echo htmlspecialchars($user['Email']); ?></p>
-                            <p><strong>Notes:</strong> <span id="modalNotes"></span></p>
-                            <!-- <p><strong>Status:</strong> <span id="modalStatus"></span></p> -->
-                            
-                            <!-- Dropdown -->
-                            <div id="taskActionSection">
-                                <form action="update_task.php" method="POST">
-                                    <input type="hidden" name="task_id" id="modalTaskID">
-                                    
-                                    <!-- Dropdown for task status -->
-                                    <select name="task_status" id="taskStatusDropdown" onchange="updateTaskStatus(this)">
-                                        <option value="Open">Open</option>
-                                        <option value="Closed">Mark as Done</option>
-                                    </select>
-                                    
-                                    <!-- <button type="submit" id="updateTaskStatus">Update Status</button> -->
-                                </form>
-
-                                <!-- Edit Task and Delete Task actions -->
-                                <a href="edit_task.php?task_id=" id="editTaskLink">Edit Task</a> | 
-                                <a href="delete_task.php?task_id=" id="deleteTaskLink" onclick="return confirm('Are you sure you want to delete this task?')">Delete Task</a>
+                            <div class="task-modal-header">
+                                <!-- Task Title -->
+                                <h2 id="modalTitle"></h2>
+                                <span class="close-view-post-modal" onclick="closeTaskModal()">&times;</span>
                             </div>
 
+                            <div class="posted-by-container">
+                                <div class="posted-by-title">
+                                    <p>Posted by</p>
+                                </div>
+                                <div class="community-poster-profile-details">
+                                    <div class="community-poster-profile-details-profile">
+                                        <div class="community-poster-profile-details-profile-pic">
+                                            <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
+                                            alt="Profile Picture">
+                                        </div>
+                                        <div class="community-poster-profile-details-details">
+                                            <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
+                                            <p><em>Posted <span id="modalTimeAgo"></span></em></p>
+                                        </div>
+                                    </div>
+                                    <!-- Dropdown -->
+                                    <div id="taskActionSection">
+                                        <form action="update_task.php" method="POST">
+                                            <input type="hidden" name="task_id" id="modalTaskID">
+                                            
+                                            <!-- Dropdown for task status -->
+                                            <select class="status-dropdown" name="task_status" id="taskStatusDropdown" onchange="updateTaskStatus(this)">
+                                                <option value="Open" selected hidden>Open</option>
+                                                <option value="Closed">✔️ Mark as Done</option>
+                                                <option value="Edit" data-taskid="TASK_ID">🖊️ Edit Task</option>
+                                                <option value="Delete" data-taskid="TASK_ID">🗑️ Delete Task</option>
+                                            </select>
+                                            
+                                            <!-- <button type="submit" id="updateTaskStatus">Update Status</button> -->
+                                        </form>
+
+                                        <!-- Edit Task and Delete Task actions -->
+                                        <div class="display-none">
+                                            <a href="edit_task.php?task_id=" id="editTaskLink" title="Edit Task">🖊️</a> | 
+                                            <a href="delete_task.php?task_id=" id="deleteTaskLink" title="Delete Task" onclick="return confirm('Are you sure you want to delete this task?')">🗑️</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="task-details-container">
+                                <!-- Task Details -->
+                                <div class="task-details-1">
+                                    <p class="task-details-1-location"><strong>📍 Location</strong><br/>          
+                                    &nbsp;&nbsp;&nbsp;&nbsp;<span id="modalLocation"></span></p>
+
+                                    <p class="task-details-1-date"><strong>📅 Completion Date</strong><br/>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="modalCompletionDate"></span></p>
+
+                                    <p><strong>🧩 Category</strong><br/>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="modalCategory"></span></p>
+                                </div>
+
+                                <div class="task-details-2">
+                                    <div class="task-details-inner-wrapper">
+                                        <p><strong>⏳ Estimated Duration</strong><br/>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="modalEstimatedDuration"></span></p>
+                                        <!-- <p><strong>Location Type:</strong> 
+                                        <span id="modalLocationType"></span></p> -->
+                                        <p><strong>💵 Price</strong><br/>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;₱<span id="modalPrice"></span></p>
+                                    </div>
+                                </div>
+
+                                <p><strong>Task Description</strong><br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="modalDescription"></span></p>
+
+                                <p><strong>✉️ Contact via Email</strong><br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<?php echo htmlspecialchars($user['Email']); ?></p>
+
+                                <p><strong>📌 Notes /  Requirements</strong><br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<span id="modalNotes"></span></p>
+                                <!-- <p><strong>Status:</strong> <span id="modalStatus"></span></p> -->
+                            </div>
+                            
                             <!-- ------------------------------COMMENTS SECTION------------------------------ -->
-                            <h3>Comments</h3>
+                            <hr class="hr-comments"/>
+                            <h3 class="h3-comments">Comments</h3>
                             <div id="commentsSection">
                                 <?php
                                 // Fetch comments for the specific task
@@ -435,12 +486,12 @@
                                     if ($comments_result->num_rows > 0) {
                                         while ($comment = $comments_result->fetch_assoc()) {
                                             ?>
-                                            <div class="comment-box">
-                                                <p><strong><?php echo htmlspecialchars($comment['FirstName'] . ' ' . $comment['LastName']); ?></strong></p>
+                                            <div class="comment-box"> <!-- fetch_comments.php para sa comments -->
+                                                <!-- <p><strong><?php echo htmlspecialchars($comment['FirstName'] . ' ' . $comment['LastName']); ?></strong></p>
                                                 <p><em>Posted on <?php echo htmlspecialchars($comment['DatePosted']); ?></em></p>
                                                 <p><strong>Trust Points:</strong> <?php echo htmlspecialchars($comment['TrustPoints']); ?></p>
                                                 <p><?php echo htmlspecialchars($comment['Content']); ?></p>
-                                                <button onclick="acceptComment(<?php echo $comment['CommentID']; ?>)">Accept</button><button onclick="acceptComment(<?php echo $comment['CommentID']; ?>)">Accept</button>
+                                                <button onclick="acceptComment(<?php echo $comment['CommentID']; ?>)">Accept</button><button onclick="acceptComment(<?php echo $comment['CommentID']; ?>)">Accept</button> -->
                                             </div>
                                             <?php
                                         }
@@ -475,6 +526,60 @@
                         $task_query->execute();
                         $tasks_result = $task_query->get_result();
                     ?>
+
+                    <!-- ------------------------------PREVIOUS POST------------------------------ -->
+                    <h2>Previous Posts</h2>
+                        <div class="previous-task-grid-container">
+                            <?php
+                                $previous_query = $connection->prepare("SELECT * FROM tasks WHERE CommunityID = ? AND Status = 'Closed' ORDER BY DatePosted DESC");
+                                $previous_query->bind_param("i", $communityID);
+                                $previous_query->execute();
+                                $previous_result = $previous_query->get_result();
+
+                                if ($previous_result->num_rows > 0) {
+                                    while ($task = $previous_result->fetch_assoc()) {
+                                        echo "<div class='previous-task-container previous-task-square'>";
+                                            echo "<div class='previous-task-header'";
+                                                echo "<h3 class='previous-task-header-h3'> <strong>" . htmlspecialchars($task['Title']) . "</strong> </h3>";
+                                                echo "<p>" . htmlspecialchars($task['Status']) . "</p>";
+                                            echo "</div>";
+
+                                            echo "<div class='previous-task-content'>";
+
+                                                echo "<div class='previous-task-profile-pic'>";
+                                                    echo "<img src='" . $profileSrc . "' alt='Profile Picture' class='poster-profile-picture'>";
+                                                echo "</div>";
+                                                echo "<div class='previous-task-details-container'>";
+                                                    echo "<div class='previous-task-details-owner'>";
+                                                        echo "<div class='previous-task-owner'>";
+                                                            echo "<p>Posted by: " . htmlspecialchars($firstName . ' ' . $lastName) . "</p>";
+                                                        echo "</div>";
+                                                    echo "</div>";
+                                                    echo "<div class='previous-task-details-content'>";
+                                                        echo "<div class='previous-task-detail'>";
+                                                            echo "<p>📍" . htmlspecialchars($task['LocationType']) . "</p>";
+                                                        echo "</div>";
+
+                                                        echo "<div class='previous-task-detail'>";
+                                                            echo "<p>📅" . htmlspecialchars($task['CompletionDate']) . "</p>";
+                                                        echo "</div>";
+                                                    echo "</div>";
+                                                echo "</div>";
+
+                                                echo "<div class='previous-task-price'>";
+                                                    echo "<p> <strong>₱" . number_format($task['Price'], 2) . "</strong></p>";
+                                                echo "</div>";
+                                                
+                                            echo "</div>";
+                                        echo "</div>";
+                                    }
+                                } else {
+                                    echo "<p>No previous posts found.</p>";
+                                }
+                                $previous_query->close();
+                            ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
