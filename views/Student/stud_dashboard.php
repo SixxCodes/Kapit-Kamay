@@ -72,35 +72,38 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Student Dashboard - <?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></title>
         <link rel="stylesheet" href="css/stud_style.css">
+        <link rel="stylesheet" href="css/mobile_style.css">
+        <link rel="shortcut icon" href="../../assets/images/logo1.png" type="image/x-icon">
     </head>
     <body>
         
         <!-- ------------------------------HEADER------------------------------ -->
-        <div class="main-header">
-            <input type="text" class="search-bar" id="taskSearch" placeholder="Search by task title...">
-
-            <!-- ------------------------------NOTIFICATIONS------------------------------ -->
-            <!-- Notification Button -->
-            <div class="notification-container" id="notif-container">
-                <button class="notification-button" id="notificationButton" onclick="toggleNotificationModal()">
-                    <!-- Notification Icon -->
-                    <img src="../../assets/images/notification-bell-icon.jpg" alt="Notifications">
-                    <!-- Notification Red na ! -->
-                    <span class="notification-badge" id="notificationBadge">!</span>
-                </button>
-
-                <!-- Notification Modal -->
-                <div id="notificationModal">
-                    <div>
-                        <h4>Notifications</h4>
-                        <ul id="notificationList">
-                            <!-- Diri ma-add ang notifications -->
-                        </ul>
-                    </div>
-                </div>
-
+        <header class="main-header">
+            <div class="header-main-logo">
+                <img src="../../assets/images/logo1.png" alt="Logo Sample">
+                <h1>Kapit-Kamay</h1>
             </div>
-        </div>
+            <div class="header-main-role-dashboard">
+                <h2>Student Dashboard</h2>
+            </div>
+            <div class="header-main-tools">
+                <!-- ------------------------------NOTIFICATIONS------------------------------ -->
+                <!-- Notification Button -->
+                <div class="header-main-notifications">
+                    <img src="../../assets/images/notification-bell-icon.jpg" alt="Notifications" onclick="toggleNotifications()" data-community-id="<?php echo $communityID; ?>">
+                </div>
+                <div class="profile-icon-mobile">
+                    <?php
+                        $profileSrc = !empty($user['ProfilePicture']) ? $user['ProfilePicture'] : "../assets/default-avatar.png";
+                    ?>
+                    <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
+                        alt="Profile Picture" 
+                        class="user-icon"
+                        id="userIcon" 
+                        onclick="openUserModal()">
+                </div>
+            </div>
+        </header>
 
         <?php
             // Fetch notifications for the logged-in student
@@ -121,294 +124,308 @@
                 $notifications[] = $notification;
             }
         ?>
-        
-        <!-- ------------------------------PROFILE------------------------------ -->
-        <h1>Kapit-Kamay</h1>
-        <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
 
-        <!-- -------------------PROFILE (ICON)------------------- -->
-        <!-- USER INFO MODAL -->
-        <div id="userModal" class="userModal">
-            <div class="userModal-content">
-                <form action="upload_profile.php" method="POST" enctype="multipart/form-data">
-                    <label>Change Profile Picture:</label>
-                    <input type="file" name="profile_picture" accept="image/*" required>
-                    <button type="submit">Upload</button>
-                </form>
-                
-                <?php
-                    $profileSrc = !empty($user['ProfilePicture']) ? $user['ProfilePicture'] : "../assets/default-avatar.png";
-                ?>
+        <div class="body-container">
+            <div class="body-content">
+                <div class="body-content-user">
+                    <div class="profile-summary-pc">
+                        <!-- ------------------------------PROFILE------------------------------ -->
+                        <img class="profile-picture" src="<?php echo htmlspecialchars($profileSrc); ?>" 
+                            alt="Profile Picture" 
+                            id="userIcon" 
+                            onclick="openUserModal()">
+                        <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
 
-                <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
-                    alt="Profile Picture">
+                        <!-- -------------------PROFILE (ICON)------------------- -->
+                        <!-- USER INFO MODAL -->
+                        <div id="userModal" class="userModal">
+                            <div class="userModal-content">
+                                <form action="upload_profile.php" method="POST" enctype="multipart/form-data">
+                                    <label>Change Profile Picture:</label>
+                                    <input type="file" name="profile_picture" accept="image/*" required>
+                                    <button type="submit">Upload</button>
+                                </form>
+                                
+                                <?php
+                                    $profileSrc = !empty($user['ProfilePicture']) ? $user['ProfilePicture'] : "../assets/default-avatar.png";
+                                ?>
 
-                <span class="userClose" onclick="closeUserModal()">&times;</span>
-                <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
-                <!-- <p><strong>User ID:</strong> <?php echo htmlspecialchars($user['UserID']); ?></p> -->
-                <p><strong>First Name:</strong> <?php echo htmlspecialchars($user['FirstName']); ?></p>
-                <p><strong>Last Name:</strong> <?php echo htmlspecialchars($user['LastName']); ?></p>
-                <p><strong>Email:</strong> <?php echo htmlspecialchars($user['Email']); ?></p>
-                <p><strong>Role:</strong> <?php echo htmlspecialchars($user['Role']); ?></p>
-                <p><strong>Trust Points:</strong> <?php echo htmlspecialchars($user['TrustPoints']); ?></p>
-                <a href="../logout.php">Logout</a>
-            </div>
-        </div>
+                                <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
+                                    alt="Profile Picture">
 
-        <img class="profile-picture" src="<?php echo htmlspecialchars($profileSrc); ?>" 
-            alt="Profile Picture" 
-            id="userIcon" 
-            onclick="openUserModal()">
-        
-        <!-- ------------------------------TASK DETAILS------------------------------ -->
-        <?php
-            // ------------------------------ONGOING TASKS PHP------------------------------ 
-            // Fetch tasks where the student has been accepted and the status is Open or Ongoing
-            $ongoingTasksQuery = $connection->prepare("
-            SELECT t.*, u.FirstName, u.LastName, u.ProfilePicture, u.Email AS PosterEmail
-            FROM tasks t
-            JOIN comments c ON t.TaskID = c.TaskID
-            JOIN users u ON t.CommunityID = u.UserID
-            WHERE c.StudentID = ? AND c.IsAccepted = 1 AND t.Status IN ('Open', 'Ongoing')
-            ORDER BY t.DatePosted DESC
-            ");
-            $ongoingTasksQuery->bind_param("i", $studentID);
-            $ongoingTasksQuery->execute();
-            $ongoingTasksResult = $ongoingTasksQuery->get_result();
-
-            // Count the number of ongoing tasks
-            $ongoingTaskCount = $ongoingTasksResult->num_rows;
-
-            // Check if the student has reached the limit of 2 ongoing tasks
-            if ($ongoingTaskCount >= 2) {
-            echo "<p class='ongoing-task-limit-warning'><strong>You have reached the limit of 2 ongoing tasks. Complete a task to accept new ones.</strong></p>";
-            }
-
-            // ------------------------------COMPLETED TASKS PHP------------------------------ 
-            // Count tasks where the status is Closed
-            $completedTasksQuery = $connection->prepare("
-                SELECT COUNT(*) AS CompletedCount
-                FROM tasks t
-                JOIN comments c ON t.TaskID = c.TaskID
-                WHERE c.StudentID = ? AND c.IsAccepted = 1 AND t.Status = 'Closed'
-            ");
-            $completedTasksQuery->bind_param("i", $studentID);
-            $completedTasksQuery->execute();
-            $completedTasksResult = $completedTasksQuery->get_result();
-            $completedTasksCount = $completedTasksResult->fetch_assoc()['CompletedCount'];
-        ?>
-
-        <!-- ------------------------------STUDENT PROFILE SUMMARY------------------------------  -->
-        <!-- Display Trust Points, Rating, and Completed Tasks -->
-        <div class="student-profile-summary-container">
-            <p><strong>Trust Points:</strong> <?= htmlspecialchars($user['TrustPoints']) ?></p>
-    
-            <?php
-            // Fetch the average rating for the student
-            $ratingQuery = $connection->prepare("
-                SELECT AVG(Rating) AS avg_rating 
-                FROM taskratings 
-                WHERE StudentID = ?
-            ");
-            $ratingQuery->bind_param("i", $studentID);
-            $ratingQuery->execute();
-            $ratingResult = $ratingQuery->get_result();
-            $ratingData = $ratingResult->fetch_assoc();
-            $avgRating = round($ratingData['avg_rating']);
-            $ratingQuery->close();
-            ?>
-            
-            <p class="student-profile-summary-rating"><strong>Rating:</strong>
-                <?php for ($i = 1; $i <= 5; $i++): ?>
-                    <span><?= $i <= $avgRating ? "★" : "☆" ?></span>
-                <?php endfor; ?>
-            </p>
-            
-            <!-- Display Completed Tasks Count -->
-            <p><strong>Completed Tasks:</strong> <?= $completedTasksCount ?></p>
-        </div>
-
-        <!-- ------------------------------DISPLAY ONGOING TASKS------------------------------  -->
-        <h3>Your Ongoing Tasks</h3>
-
-        <?php if ($ongoingTasksResult->num_rows > 0): ?>
-            <div class="ongoing-tasks">
-                <?php $modalCount = 0; ?>
-                <?php while ($task = $ongoingTasksResult->fetch_assoc()): ?>
-                    <?php $modalId = "ongoing-task-modal_" . $modalCount++; ?>
-                    <div class="ongoing-task-box" onclick="document.getElementById('<?= $modalId ?>').style.display='block'">
-                        <h4 class="ongoing-task-title"><?= htmlspecialchars($task['Title']) ?></h4>
-                        <p><strong>Posted By:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
-                        <p><strong>Location:</strong> <?= htmlspecialchars($task['Location']) ?></p>
-                        <p><strong>Completion Date:</strong> <?= htmlspecialchars($task['CompletionDate']) ?></p>
-                        <p><strong>Price:</strong> ₱<?= number_format($task['Price'], 2) ?></p>
-                    </div>
-
-                    <!-- Modal for Ongoing Task Details -->
-                    <div id="<?= $modalId ?>" class="modal">
-                        <div class="modal-content modal-content-ongoing-tasks">
-                            <span class="close" onclick="document.getElementById('<?= $modalId ?>').style.display='none'">&times;</span>
-                            <h2><?= htmlspecialchars($task['Title']) ?></h2>
-                            <p><strong>Posted On:</strong> <?= date("F j, Y, g:i a", strtotime($task['DatePosted'])) ?></p>
-                            <p><strong>Posted:</strong> <?= (new DateTime($task['DatePosted']))->diff(new DateTime())->days ?> day(s) ago</p>
-                            <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
-                                alt="Profile Picture">
-                            <p><strong>Status:</strong> <?= htmlspecialchars($task['Status']) ?></p>
-                            <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
-                            <p><strong>Location:</strong> <?= htmlspecialchars($task['Location']) ?></p>
-                            <p><strong>Completion Date:</strong> <?= htmlspecialchars($task['CompletionDate']) ?></p>
-                            <p><strong>Category:</strong> <?= htmlspecialchars($task['Category']) ?></p>
-                            <p><strong>Estimated Duration:</strong> <?= htmlspecialchars($task['EstimatedDuration']) ?></p>
-                            <p><strong>Price:</strong> ₱<?= number_format($task['Price'], 2) ?></p>
-                            <p><strong>Task Description:</strong> <?= nl2br(htmlspecialchars($task['Description'])) ?></p>
-                            <p><strong>Contact via Email:</strong> <?= htmlspecialchars($task['PosterEmail']) ?></p>
-                            <p><strong>Notes:</strong> <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
+                                <span class="userClose" onclick="closeUserModal()">&times;</span>
+                                <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
+                                <!-- <p><strong>User ID:</strong> <?php echo htmlspecialchars($user['UserID']); ?></p> -->
+                                <p><strong>First Name:</strong> <?php echo htmlspecialchars($user['FirstName']); ?></p>
+                                <p><strong>Last Name:</strong> <?php echo htmlspecialchars($user['LastName']); ?></p>
+                                <p><strong>Email:</strong> <?php echo htmlspecialchars($user['Email']); ?></p>
+                                <p><strong>Role:</strong> <?php echo htmlspecialchars($user['Role']); ?></p>
+                                <p><strong>Trust Points:</strong> <?php echo htmlspecialchars($user['TrustPoints']); ?></p>
+                                <a href="../logout.php">Logout</a>
+                            </div>
                         </div>
+
+                        <!-- ------------------------------TASK DETAILS------------------------------ -->
+                        <?php
+                            // ------------------------------ONGOING TASKS PHP------------------------------ 
+                            // Fetch tasks where the student has been accepted and the status is Open or Ongoing
+                            $ongoingTasksQuery = $connection->prepare("
+                            SELECT t.*, u.FirstName, u.LastName, u.ProfilePicture, u.Email AS PosterEmail
+                            FROM tasks t
+                            JOIN comments c ON t.TaskID = c.TaskID
+                            JOIN users u ON t.CommunityID = u.UserID
+                            WHERE c.StudentID = ? AND c.IsAccepted = 1 AND t.Status IN ('Open', 'Ongoing')
+                            ORDER BY t.DatePosted DESC
+                            ");
+                            $ongoingTasksQuery->bind_param("i", $studentID);
+                            $ongoingTasksQuery->execute();
+                            $ongoingTasksResult = $ongoingTasksQuery->get_result();
+
+                            // Count the number of ongoing tasks
+                            $ongoingTaskCount = $ongoingTasksResult->num_rows;
+
+                            // Check if the student has reached the limit of 2 ongoing tasks
+                            if ($ongoingTaskCount >= 2) {
+                            echo "<p class='ongoing-task-limit-warning'><strong>You have reached the limit of 2 ongoing tasks. Complete a task to accept new ones.</strong></p>";
+                            }
+
+                            // ------------------------------COMPLETED TASKS PHP------------------------------ 
+                            // Count tasks where the status is Closed
+                            $completedTasksQuery = $connection->prepare("
+                                SELECT COUNT(*) AS CompletedCount
+                                FROM tasks t
+                                JOIN comments c ON t.TaskID = c.TaskID
+                                WHERE c.StudentID = ? AND c.IsAccepted = 1 AND t.Status = 'Closed'
+                            ");
+                            $completedTasksQuery->bind_param("i", $studentID);
+                            $completedTasksQuery->execute();
+                            $completedTasksResult = $completedTasksQuery->get_result();
+                            $completedTasksCount = $completedTasksResult->fetch_assoc()['CompletedCount'];
+                        ?>
+
+                        <!-- ------------------------------STUDENT PROFILE SUMMARY------------------------------  -->
+                        <!-- Display Trust Points, Rating, and Completed Tasks -->
+                        <div class="student-profile-summary-container">
+                            <p><strong>Trust Points:</strong> <?= htmlspecialchars($user['TrustPoints']) ?></p>
+                    
+                            <?php
+                            // Fetch the average rating for the student
+                            $ratingQuery = $connection->prepare("
+                                SELECT AVG(Rating) AS avg_rating 
+                                FROM taskratings 
+                                WHERE StudentID = ?
+                            ");
+                            $ratingQuery->bind_param("i", $studentID);
+                            $ratingQuery->execute();
+                            $ratingResult = $ratingQuery->get_result();
+                            $ratingData = $ratingResult->fetch_assoc();
+                            $avgRating = round($ratingData['avg_rating']);
+                            $ratingQuery->close();
+                            ?>
+                            
+                            <p class="student-profile-summary-rating"><strong>Rating:</strong>
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <span><?= $i <= $avgRating ? "★" : "☆" ?></span>
+                                <?php endfor; ?>
+                            </p>
+                            
+                            <!-- Display Completed Tasks Count -->
+                            <p><strong>Completed Tasks:</strong> <?= $completedTasksCount ?></p>
+                        </div>
+                        
                     </div>
-                <?php endwhile; ?>
-            </div>
-        <?php else: ?>
-            <p>No ongoing tasks yet.</p>
-        <?php endif; ?>
-            
-        <!-- ------------------------------VIEW POSTS------------------------------ -->
-        <h3>All Tasks</h3>
-        <?php if ($result->num_rows > 0): ?>
-        <?php $modalCount = 0; ?>
-        <?php while ($task = $result->fetch_assoc()): 
-            $taskId = $task['TaskID'];
+                </div>
+                    
+                <div class="body-content-task">
+                    <!-- ------------------------------SEARCH------------------------------ -->
+                    <div class="search-bar-container">
+                        <input type="text" class="search-bar" id="taskSearchBar" placeholder="🔍 Search your tasks..." onkeyup="filterMyTasks()">
+                    </div>
 
-            // Fetch comments for the current task
-            $commentQuery = $connection->prepare("
-                SELECT c.*, u.FirstName, u.LastName, u.ProfilePicture
-                FROM comments c
-                JOIN users u ON c.StudentID = u.UserID
-                WHERE c.TaskID = ?
-                ORDER BY c.DatePosted DESC
-            ");
-            $commentQuery->bind_param("i", $taskId);
-            $commentQuery->execute();
-            $commentResult = $commentQuery->get_result();
-            ?>
-            <?php $modalId = "modal_" . $modalCount++; ?>
-            
-            <div class="task-box" onclick="document.getElementById('<?= $modalId ?>').style.display='block'">
-                <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
-                            alt="Profile Picture">
-                <p class="task-title"><strong><?= htmlspecialchars($task['Title']) ?></strong></p>
-                <p><?= htmlspecialchars($task['LocationType']) ?></p>
-                <p><?= htmlspecialchars($task['CompletionDate']) ?></p>
-                <p class="posted-time" data-dateposted="<?= $task['DatePosted'] ?>"></p>
-                <p><strong>₱<?= number_format($task['Price'], 2) ?></strong> </p>
-            </div>
+                    <!-- ------------------------------DISPLAY ONGOING TASKS------------------------------  -->
+                    <h2>Your Ongoing Tasks</h2>
 
-            <!-- ------------------------------VIEW POSTS (MODAL, DETAILED)------------------------------ -->
-            <div id="<?= $modalId ?>" class="modal">
-                <div class="modal-content">
-                    <span class="close" onclick="document.getElementById('<?= $modalId ?>').style.display='none'">&times;</span>
-                    <h2><?= htmlspecialchars($task['Title']) ?></h2>
-                    <p><strong>Posted On:</strong> <?= date("F j, Y, g:i a", strtotime($task['DatePosted'])) ?></p>
-                    <p class="posted-time" data-dateposted="<?= $task['DatePosted'] ?>"></p>
+                    <?php if ($ongoingTasksResult->num_rows > 0): ?>
+                        <div class="ongoing-tasks">
+                            <?php $modalCount = 0; ?>
+                            <?php while ($task = $ongoingTasksResult->fetch_assoc()): ?>
+                                <?php $modalId = "ongoing-task-modal_" . $modalCount++; ?>
+                                <div class="ongoing-task-box" onclick="document.getElementById('<?= $modalId ?>').style.display='block'">
+                                    <h4 class="ongoing-task-title"><?= htmlspecialchars($task['Title']) ?></h4>
+                                    <p><strong>Posted By:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
+                                    <p><strong>Location:</strong> <?= htmlspecialchars($task['Location']) ?></p>
+                                    <p><strong>Completion Date:</strong> <?= htmlspecialchars($task['CompletionDate']) ?></p>
+                                    <p><strong>Price:</strong> ₱<?= number_format($task['Price'], 2) ?></p>
+                                </div>
 
-                    <!-- <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
-                        alt="Profile Picture" 
-                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;"> 
-                    -->
-
-                    <img class="view-post-modal-community-profile-picture" src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
-                        alt="Profile Picture" 
-                        onclick="openCommunityProfileModal('<?= htmlspecialchars($task['ProfilePicture']) ?>', '<?= htmlspecialchars($task['FirstName'] . ' ' . $task['LastName']) ?>', '<?= htmlspecialchars($task['PosterEmail']) ?>', 'Community')">
-                    <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
-                    <p><strong>Status:</strong> <?= htmlspecialchars($task['Status']) ?></p>
-                    <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
-                    <!-- <p><strong>Location Type:</strong> <?= htmlspecialchars($task['LocationType']) ?></p> -->
-                    <p><strong>Location:</strong> <?= htmlspecialchars($task['Location']) ?></p>
-                    <p><strong>Completion Date:</strong> <?= htmlspecialchars($task['CompletionDate']) ?></p>
-                    <p><strong>Category:</strong> <?= htmlspecialchars($task['Category']) ?></p>
-                    <p><strong>Estimated Duration:</strong> <?= htmlspecialchars($task['EstimatedDuration']) ?></p>
-                    <p><strong>Price:</strong> ₱<?= number_format($task['Price'], 2) ?></p>
-                    <p><strong>Task Description:</strong> <?= nl2br(htmlspecialchars($task['Description'])) ?></p>
-                    <p><strong>Contact via Email:</strong> <?= htmlspecialchars($task['PosterEmail']) ?></p>
-                    <p><strong>Notes:</strong> <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
-
-                    <!-- ------------------------------COMMENT SECTION------------------------------ -->
-                    <div class="view-posts-comments-container">
-                        <h3>Comments</h3>
-                        <?php if ($commentResult->num_rows > 0): ?>
-                            <?php while ($comment = $commentResult->fetch_assoc()): ?>
-                                <div class="comment-box">
-                                    <?php
-                                    // Fetch task poster's profile picture
-                                    $posterStmt = $connection->prepare("SELECT ProfilePicture FROM users WHERE UserID = ?");
-                                    $posterStmt->bind_param("i", $comment['StudentID']);
-                                    $posterStmt->execute();
-                                    $posterResult = $posterStmt->get_result();
-                                    $posterData = $posterResult->fetch_assoc();
-                                    ?>
-                                    
-                                    <!-- Display profile picture of the student who commented -->
-                                    <img src="../Student/<?= htmlspecialchars($posterData['ProfilePicture']) ?>" alt="Poster Profile Picture">
-
-                                    <p><strong><?= htmlspecialchars($comment['FirstName'] . " " . $comment['LastName']) ?></strong></p>
-                                    
-                                    <?php
-                                        $ratingStmt = $connection->prepare("
-                                            SELECT AVG(Rating) as avg_rating
-                                            FROM taskratings
-                                            WHERE StudentID = ?
-                                        ");
-                                        $ratingStmt->bind_param("i", $comment['StudentID']);
-                                        $ratingStmt->execute();
-                                        $ratingResult = $ratingStmt->get_result();
-                                        $ratingData = $ratingResult->fetch_assoc();
-                                        $avgRating = isset($ratingData['avg_rating']) ? round($ratingData['avg_rating']) : 0; // Default to 0 if no ratings
-                                    ?>
-                                    
-                                    <p class="student-comment-rating">Rating:
-                                        <?php for ($i = 1; $i <= 5; $i++): ?>
-                                            <span><?= $i <= $avgRating ? "★" : "☆" ?></span>
-                                        <?php endfor; ?>
-                                    </p>
-                                    
-                                    <p class="posted-time" data-dateposted="<?= $comment['DatePosted'] ?>"></p>
-                                    <p><?= nl2br(htmlspecialchars($comment['Content'])) ?></p>
+                                <!-- Modal for Ongoing Task Details -->
+                                <div id="<?= $modalId ?>" class="modal">
+                                    <div class="modal-content modal-content-ongoing-tasks">
+                                        <span class="close" onclick="document.getElementById('<?= $modalId ?>').style.display='none'">&times;</span>
+                                        <h2><?= htmlspecialchars($task['Title']) ?></h2>
+                                        <p><strong>Posted On:</strong> <?= date("F j, Y, g:i a", strtotime($task['DatePosted'])) ?></p>
+                                        <p><strong>Posted:</strong> <?= (new DateTime($task['DatePosted']))->diff(new DateTime())->days ?> day(s) ago</p>
+                                        <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
+                                            alt="Profile Picture">
+                                        <p><strong>Status:</strong> <?= htmlspecialchars($task['Status']) ?></p>
+                                        <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
+                                        <p><strong>Location:</strong> <?= htmlspecialchars($task['Location']) ?></p>
+                                        <p><strong>Completion Date:</strong> <?= htmlspecialchars($task['CompletionDate']) ?></p>
+                                        <p><strong>Category:</strong> <?= htmlspecialchars($task['Category']) ?></p>
+                                        <p><strong>Estimated Duration:</strong> <?= htmlspecialchars($task['EstimatedDuration']) ?></p>
+                                        <p><strong>Price:</strong> ₱<?= number_format($task['Price'], 2) ?></p>
+                                        <p><strong>Task Description:</strong> <?= nl2br(htmlspecialchars($task['Description'])) ?></p>
+                                        <p><strong>Contact via Email:</strong> <?= htmlspecialchars($task['PosterEmail']) ?></p>
+                                        <p><strong>Notes:</strong> <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
+                                    </div>
                                 </div>
                             <?php endwhile; ?>
-                        <?php else: ?>
-                            <p>No comments yet.</p>
-                        <?php endif; ?>
-                    </div>
+                        </div>
+                    <?php else: ?>
+                        <p>No ongoing tasks yet.</p>
+                    <?php endif; ?>                    
 
-                    <!-- ------------------------------LEAVE A COMMENT------------------------------ -->
-                    <div class="leave-a-comment-container">
-                        <h3>Leave a Comment</h3>
-                        <?php if ($ongoingTaskCount >= 2): ?>
-                            <p><strong>You cannot leave a comment because you already have 2 ongoing tasks. Complete a task to comment on new ones.</strong></p>
-                        <?php else: ?>
-                            <form action="submit_comment.php" method="POST">
-                                <input type="hidden" name="task_id" value="<?= $taskId ?>">
-                                <textarea name="comment_content" rows="4" required placeholder="Write your comment..."></textarea>
-                                <br>
-                                <button type="submit">Post Comment</button>
-                            </form>
-                        <?php endif; ?>
-                    </div>
+                    <!-- ------------------------------All POSTS------------------------------ -->
+                    <h2>All Tasks</h2>
+                    <?php if ($result->num_rows > 0): ?>
+                    <?php $modalCount = 0; ?>
+                    <?php while ($task = $result->fetch_assoc()): 
+                        $taskId = $task['TaskID'];
 
+                        // Fetch comments for the current task
+                        $commentQuery = $connection->prepare("
+                            SELECT c.*, u.FirstName, u.LastName, u.ProfilePicture
+                            FROM comments c
+                            JOIN users u ON c.StudentID = u.UserID
+                            WHERE c.TaskID = ?
+                            ORDER BY c.DatePosted DESC
+                        ");
+                        $commentQuery->bind_param("i", $taskId);
+                        $commentQuery->execute();
+                        $commentResult = $commentQuery->get_result();
+                        ?>
+                        <?php $modalId = "modal_" . $modalCount++; ?>
+                        
+                        <div class="task-box" onclick="document.getElementById('<?= $modalId ?>').style.display='block'">
+                            <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
+                                        alt="Profile Picture">
+                            <p class="task-title"><strong><?= htmlspecialchars($task['Title']) ?></strong></p>
+                            <p><?= htmlspecialchars($task['LocationType']) ?></p>
+                            <p><?= htmlspecialchars($task['CompletionDate']) ?></p>
+                            <p class="posted-time" data-dateposted="<?= $task['DatePosted'] ?>"></p>
+                            <p><strong>₱<?= number_format($task['Price'], 2) ?></strong> </p>
+                        </div>
+
+                        <!-- ------------------------------VIEW POSTS (MODAL, DETAILED)------------------------------ -->
+                        <div id="<?= $modalId ?>" class="modal">
+                            <div class="modal-content">
+                                <span class="close" onclick="document.getElementById('<?= $modalId ?>').style.display='none'">&times;</span>
+                                <h2><?= htmlspecialchars($task['Title']) ?></h2>
+                                <p><strong>Posted On:</strong> <?= date("F j, Y, g:i a", strtotime($task['DatePosted'])) ?></p>
+                                <p class="posted-time" data-dateposted="<?= $task['DatePosted'] ?>"></p>
+
+                                <!-- <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
+                                    alt="Profile Picture" 
+                                    style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;"> 
+                                -->
+
+                                <img class="view-post-modal-community-profile-picture" src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
+                                    alt="Profile Picture" 
+                                    onclick="openCommunityProfileModal('<?= htmlspecialchars($task['ProfilePicture']) ?>', '<?= htmlspecialchars($task['FirstName'] . ' ' . $task['LastName']) ?>', '<?= htmlspecialchars($task['PosterEmail']) ?>', 'Community')">
+                                <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
+                                <p><strong>Status:</strong> <?= htmlspecialchars($task['Status']) ?></p>
+                                <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
+                                <!-- <p><strong>Location Type:</strong> <?= htmlspecialchars($task['LocationType']) ?></p> -->
+                                <p><strong>Location:</strong> <?= htmlspecialchars($task['Location']) ?></p>
+                                <p><strong>Completion Date:</strong> <?= htmlspecialchars($task['CompletionDate']) ?></p>
+                                <p><strong>Category:</strong> <?= htmlspecialchars($task['Category']) ?></p>
+                                <p><strong>Estimated Duration:</strong> <?= htmlspecialchars($task['EstimatedDuration']) ?></p>
+                                <p><strong>Price:</strong> ₱<?= number_format($task['Price'], 2) ?></p>
+                                <p><strong>Task Description:</strong> <?= nl2br(htmlspecialchars($task['Description'])) ?></p>
+                                <p><strong>Contact via Email:</strong> <?= htmlspecialchars($task['PosterEmail']) ?></p>
+                                <p><strong>Notes:</strong> <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
+
+                                <!-- ------------------------------COMMENT SECTION------------------------------ -->
+                                <div class="view-posts-comments-container">
+                                    <h3>Comments</h3>
+                                    <?php if ($commentResult->num_rows > 0): ?>
+                                        <?php while ($comment = $commentResult->fetch_assoc()): ?>
+                                            <div class="comment-box">
+                                                <?php
+                                                // Fetch task poster's profile picture
+                                                $posterStmt = $connection->prepare("SELECT ProfilePicture FROM users WHERE UserID = ?");
+                                                $posterStmt->bind_param("i", $comment['StudentID']);
+                                                $posterStmt->execute();
+                                                $posterResult = $posterStmt->get_result();
+                                                $posterData = $posterResult->fetch_assoc();
+                                                ?>
+                                                
+                                                <!-- Display profile picture of the student who commented -->
+                                                <img src="../Student/<?= htmlspecialchars($posterData['ProfilePicture']) ?>" alt="Poster Profile Picture">
+
+                                                <p><strong><?= htmlspecialchars($comment['FirstName'] . " " . $comment['LastName']) ?></strong></p>
+                                                
+                                                <?php
+                                                    $ratingStmt = $connection->prepare("
+                                                        SELECT AVG(Rating) as avg_rating
+                                                        FROM taskratings
+                                                        WHERE StudentID = ?
+                                                    ");
+                                                    $ratingStmt->bind_param("i", $comment['StudentID']);
+                                                    $ratingStmt->execute();
+                                                    $ratingResult = $ratingStmt->get_result();
+                                                    $ratingData = $ratingResult->fetch_assoc();
+                                                    $avgRating = isset($ratingData['avg_rating']) ? round($ratingData['avg_rating']) : 0; // Default to 0 if no ratings
+                                                ?>
+                                                
+                                                <p class="student-comment-rating">Rating:
+                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                        <span><?= $i <= $avgRating ? "★" : "☆" ?></span>
+                                                    <?php endfor; ?>
+                                                </p>
+                                                
+                                                <p class="posted-time" data-dateposted="<?= $comment['DatePosted'] ?>"></p>
+                                                <p><?= nl2br(htmlspecialchars($comment['Content'])) ?></p>
+                                            </div>
+                                        <?php endwhile; ?>
+                                    <?php else: ?>
+                                        <p>No comments yet.</p>
+                                    <?php endif; ?>
+                                </div>
+
+                                <!-- ------------------------------LEAVE A COMMENT------------------------------ -->
+                                <div class="leave-a-comment-container">
+                                    <h3>Leave a Comment</h3>
+                                    <?php if ($ongoingTaskCount >= 2): ?>
+                                        <p><strong>You cannot leave a comment because you already have 2 ongoing tasks. Complete a task to comment on new ones.</strong></p>
+                                    <?php else: ?>
+                                        <form action="submit_comment.php" method="POST">
+                                            <input type="hidden" name="task_id" value="<?= $taskId ?>">
+                                            <textarea name="comment_content" rows="4" required placeholder="Write your comment..."></textarea>
+                                            <br>
+                                            <button type="submit">Post Comment</button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
+
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
+                    <?php else: ?>
+                        <p>No active community posts available.</p>
+                    <?php endif; ?>
+
+                    <!-- Community Profile Modal -->
+                    <div id="communityProfileModal" class="modal community-profile-modal-click-on-task">
+                        <span class="close" onclick="closeCommunityProfileModal()">&times;</span>
+                        <div class="community-profile-modal-click-on-task-content">
+                            <img id="communityProfilePicture" src="" alt="Profile Picture">
+                            <h3 id="communityFullName"></h3>
+                            <p><strong>Email:</strong> <span id="communityEmail"></span></p>
+                            <p><strong>Role:</strong> <span id="communityRole"></span></p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        <?php endwhile; ?>
-        <?php else: ?>
-            <p>No active community posts available.</p>
-        <?php endif; ?>
-
-        <!-- Community Profile Modal -->
-        <div id="communityProfileModal" class="modal community-profile-modal-click-on-task">
-            <span class="close" onclick="closeCommunityProfileModal()">&times;</span>
-            <div class="community-profile-modal-click-on-task-content">
-                <img id="communityProfilePicture" src="" alt="Profile Picture">
-                <h3 id="communityFullName"></h3>
-                <p><strong>Email:</strong> <span id="communityEmail"></span></p>
-                <p><strong>Role:</strong> <span id="communityRole"></span></p>
             </div>
         </div>
         
@@ -458,65 +475,6 @@
                     });
                 }
             });
-
-            // Toggle the notification modal
-            function toggleNotificationModal() {
-                const modal = document.getElementById("notificationModal");
-                modal.style.display = modal.style.display === "block" ? "none" : "block";
-
-                // Hide the red badge when the modal is opened
-                if (modal.style.display === "block") {
-                    document.getElementById("notificationBadge").style.display = "none";
-
-                    // Save the state in localStorage
-                    localStorage.setItem("notificationsViewed", "true");
-                }
-            }
-
-            // Show task details in a new modal
-            function showNotificationDetails(notification) {
-                // Create a new modal for task details
-                const modalId = "taskDetailsModal";
-                let modal = document.getElementById(modalId);
-
-                // If the modal doesn't exist, create it
-                if (!modal) {
-                    modal = document.createElement("div");
-                    modal.id = modalId;
-                    modal.className = "modal";
-                    modal.style.display = "block";
-                    modal.style.position = "fixed";
-                    modal.style.top = "50%";
-                    modal.style.left = "50%";
-                    modal.style.transform = "translate(-50%, -50%)";
-                    modal.style.background = "white";
-                    modal.style.border = "1px solid #ccc";
-                    modal.style.borderRadius = "5px";
-                    modal.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
-                    modal.style.width = "400px";
-                    modal.style.zIndex = "1000";
-                    modal.style.padding = "20px";
-                    modal.style.maxHeight = "80vh";
-                    modal.style.overflowY = "auto";
-
-                    document.body.appendChild(modal);
-                }
-
-                // Populate the modal with task details
-                modal.innerHTML = `
-                    <h4>${notification.Title}</h4>
-                    <p><strong>Posted By:</strong> ${notification.FirstName} ${notification.LastName}</p>
-                    <p><strong>Location:</strong> ${notification.Location}</p>
-                    <p><strong>Email:</strong> ${notification.Email}</p>
-                    <p><strong>Description:</strong> ${notification.Description}</p>
-                    <p><strong>Notes:</strong> ${notification.Notes}</p>
-                    <p>View your ongoing tasks to see full details.</p>
-                    <button onclick="closeTaskDetailsModal('${modalId}')" style="margin-top: 10px; background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Close</button>
-                `;
-
-                // Show the modal
-                modal.style.display = "block";
-            }
 
             // Close the task details modal
             function closeTaskDetailsModal(modalId) {
