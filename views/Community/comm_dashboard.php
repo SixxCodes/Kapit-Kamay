@@ -66,6 +66,7 @@
         <link rel="stylesheet" href="css/comm_style.css">
         <link rel="stylesheet" href="css/mobile_style.css">
         <link rel="shortcut icon" href="../../assets/images/logo1.png" type="image/x-icon">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <!-- <link rel="stylesheet" href="../css/main.css"> -->
     </head>
     <body> 
@@ -80,7 +81,20 @@
             </div>
             <div class="header-main-tools">
                 <div class="header-main-notifications">
-                    <img src="../../assets/images/notification-bell-icon.jpg" alt="">
+                    <img src="../../assets/images/notification-bell-icon.jpg" alt="Notifications" onclick="toggleNotifications()" data-community-id="<?php echo $communityID; ?>">
+                    <?php
+                        // Fetch unread notifications count
+                        $stmtUnread = $connection->prepare("SELECT COUNT(*) AS UnreadCount FROM notifications WHERE UserID = ? AND IsRead = 0");
+                        $stmtUnread->bind_param("i", $communityID);
+                        $stmtUnread->execute();
+                        $stmtUnread->bind_result($unreadCount);
+                        $stmtUnread->fetch();
+                        $stmtUnread->close();
+                        
+                        if ($unreadCount > 0) {
+                            echo "<span class='notification-badge'>$unreadCount</span>";
+                        }
+                    ?>
                 </div>
                 <div class="profile-icon-mobile">
                     <?php
@@ -94,6 +108,31 @@
                 </div>
             </div>
         </header>
+
+        <div id="notificationsDropdown" class="notifications-dropdown" style="display: none;">
+            <h3>Notifications</h3>
+            <?php
+                // Fetch notifications for the community user
+                $stmtNotifications = $connection->prepare("SELECT Message, IsRead, DateCreated FROM notifications WHERE UserID = ? ORDER BY DateCreated DESC");
+                $stmtNotifications->bind_param("i", $communityID);
+                $stmtNotifications->execute();
+                $resultNotifications = $stmtNotifications->get_result();
+
+                if ($resultNotifications->num_rows > 0) {
+                    while ($notification = $resultNotifications->fetch_assoc()) {
+                        $isReadClass = $notification['IsRead'] ? 'read' : 'unread';
+                        echo "<div class='notification-item $isReadClass'>";
+                        echo "<p>" . htmlspecialchars($notification['Message']) . "</p>";
+                        echo "<small>" . htmlspecialchars($notification['DateCreated']) . "</small>";
+                        echo "</div>";
+                    }
+                } else {
+                    echo "<p>No notifications yet.</p>";
+                }
+                $stmtNotifications->close();
+            ?>
+        </div>
+        
         
         <!-- ------------------------------PROFILE------------------------------ -->
         <!-- PROFILE ICON -->
@@ -146,22 +185,34 @@
                 <!-- ------------------------------PROFILE MODAL------------------------------ -->
                 <div id="userModal" class="userModal">
                     <div class="userModal-content">
-                        <form action="upload_profile.php" method="POST" enctype="multipart/form-data">
-                            <label>Change Profile Picture:</label>
-                            <input type="file" name="profile_picture" accept="image/*" required>
-                            <button type="submit">Upload</button>
-                        </form>
-                        
-                        <?php
-                            $profileSrc = !empty($user['ProfilePicture']) ? $user['ProfilePicture'] : "../assets/default-avatar.png";
-                        ?>
+                        <div class="user-modal-content-profile-picture">
+                            <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
+                            <?php
+                                $profileSrc = !empty($user['ProfilePicture']) ? $user['ProfilePicture'] : "../assets/default-avatar.png";
+                            ?>
 
-                        <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
-                            alt="Profile Picture" 
-                        >
+                            <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
+                                alt="Profile Picture" 
+                            >
+
+                            <!-- <form action="upload_profile.php" method="POST" enctype="multipart/form-data">
+                                <input type="file" name="profile_picture" accept="image/*" required>
+                                <button type="submit">✔️</button>
+                            </form> -->
+
+                            <form action="upload_profile.php" method="POST" enctype="multipart/form-data">
+                                <!-- Hidden file input -->
+                                <input type="file" id="profile_picture" name="profile_picture" accept="image/*" required class="file-input">
+
+                                <!-- Custom label as pen icon -->
+                                <label for="profile_picture" class="upload-label">🖊️ <small>Select Picture</small></label>
+
+                                <!-- Styled submit button -->
+                                <button type="submit" class="submit-button">✔️ <small>Upload Picture</small></button>
+                            </form>
+                        </div>
 
                         <span class="userClose" onclick="closeUserModal()">&times;</span>
-                        <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
                         <!-- <p><strong>User ID:</strong> <?php echo htmlspecialchars($user['UserID']); ?></p> -->
                         <p><strong>First Name:</strong> <?php echo htmlspecialchars($user['FirstName']); ?></p>
                         <p><strong>Last Name:</strong> <?php echo htmlspecialchars($user['LastName']); ?></p>
@@ -510,8 +561,8 @@
                         <div class="modal-content">
                             <span class="close" onclick="closeProfileModal()">&times;</span>
                             <div>
-                                <img id="modalProfilePicture" src="" alt="Profile Picture">
                                 <h2 id="modalFullName"></h2>
+                                <img id="modalProfilePicture" src="" alt="Profile Picture">
                                 <p><strong>Email:</strong> <span id="modalEmail"></span></p>
                                 <p><strong>Role:</strong> <span id="modalRole"></span></p>
                                 <p><strong>Trust Points:</strong> <span id="modalTrustPoints"></span></p>
@@ -584,7 +635,6 @@
             </div>
         </div>
         <!-- ------------------------------JAVASCRIPT------------------------------ -->
-        <script src="comm_script.js"></script>
-
+        <script src="comm_script.js"></script>                    
     </body>
 </html>

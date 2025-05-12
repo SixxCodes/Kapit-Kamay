@@ -20,6 +20,7 @@ body {
     justify-content: space-between;
     position: fixed;
     top:0;
+    z-index: 1100; /* Higher than the search bar and dropdown */
 }
 
 .header-main-logo {
@@ -51,12 +52,74 @@ body {
 .header-main-notifications {
     margin-right: 50px;
     height: 100%;
+    position: relative; 
 }
 
 .header-main-notifications img{
     margin-top: 0.6em;
-    background-color: orange;
     width: 35px;
+    cursor: pointer;
+}
+
+.notifications-dropdown {
+    display: none; /* Initially hidden */
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    right: 0;
+    top: 50px;
+    z-index: 1050; /* Higher than the header and search bar */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.notifications-dropdown h3{
+    margin-top: 20px;
+    margin-left: 10px;
+    margin-bottom: 0;
+}
+
+.notification-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.notification-item.unread {
+    color: #000000;
+}
+
+.notification-item.read {
+    background-color: #fff;
+    color: rgb(80, 80, 80);
+}
+
+.notification-item p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.notification-item small {
+    color: #888;
+    font-size: 12px;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 7px;
+    right: 1px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 1px 7px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.notification-badge.show {
+    display: flex; /* Show the badge when there are unread notifications */
 }
 
 .profile-icon-mobile {
@@ -142,12 +205,41 @@ body {
     cursor: pointer;
 }
 
+
+.user-modal-content-profile-picture {
+    text-align: center;
+}
+
 /* User */
 .user-icon {
     width:100px; 
     height:100px; 
     border-radius:50%; 
     cursor: pointer;
+}
+
+/* Hide the default file input */
+.file-input {
+    display: none;
+}
+
+/* Custom label that looks like a button */
+.upload-label {
+    display: inline-block;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+/* Style the submit button */
+.submit-button {
+    background-color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
 }
 
 /* --------------------------------------USER SUMMARY-------------------------------------- */
@@ -161,6 +253,7 @@ body {
     position: sticky;
     background-color: white;
     top: 60px;
+    z-index: 500;
 }
 
 .search-bar {
@@ -169,6 +262,7 @@ body {
     max-width: 100%; 
     margin-bottom: 20px;
     border-radius: 10px;
+    z-index: 500;
 }
 
 /* --------------------------------------TASKS-------------------------------------- */
@@ -560,7 +654,7 @@ body {
     padding: 20px; 
     border-radius: 10px; 
     max-width: 400px; 
-    margin: auto;
+    margin-top: 140px;
 }
 
 #profileModal .modal-content .close {
@@ -573,11 +667,15 @@ body {
     text-align: center;
 }
 
+#profileModal .modal-content div h2{
+    margin: 0;
+    font-size: 20px;
+}
+
 #profileModal .modal-content div img {
     width: 100px; 
     height: 100px; 
-    border-radius: 50%; 
-    margin-bottom: 10px;
+    border-radius: 50%;
 }
 
 .previous-task-grid-container {

@@ -1,3 +1,26 @@
+function toggleNotifications() {
+    const dropdown = document.getElementById('notificationsDropdown');
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+
+    if (dropdown.style.display === 'block') {
+        // Get the communityID from the data attribute
+        const notificationBell = document.querySelector('.header-main-notifications img');
+        const communityID = notificationBell.getAttribute('data-community-id');
+
+        // Send AJAX request to mark notifications as read
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'mark_notifications_read.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                console.log("Response:", xhr.responseText); // Debugging response
+                console.log("Status:", xhr.status); // Debugging status
+            }
+        };
+        xhr.send('userID=' + communityID);
+    }
+}
+
 // ------------------------------TASK MODAL------------------------------
 // ------------------------------SEARCH TASKS------------------------------
 function filterMyTasks() {
