@@ -308,22 +308,57 @@
                                     <!-- Modal for Ongoing Task Details -->
                                     <div id="<?= $modalId ?>" class="modal">
                                         <div class="modal-content modal-content-ongoing-tasks">
-                                            <span class="close" onclick="document.getElementById('<?= $modalId ?>').style.display='none'">&times;</span>
-                                            <h2><?= htmlspecialchars($task['Title']) ?></h2>
-                                            <p><strong>Posted On:</strong> <?= date("F j, Y, g:i a", strtotime($task['DatePosted'])) ?></p>
-                                            <p><strong>Posted:</strong> <?= (new DateTime($task['DatePosted']))->diff(new DateTime())->days ?> day(s) ago</p>
-                                            <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
-                                                alt="Profile Picture">
-                                            <p><strong>Status:</strong> <?= htmlspecialchars($task['Status']) ?></p>
-                                            <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
-                                            <p><strong>Location:</strong> <?= htmlspecialchars($task['Location']) ?></p>
-                                            <p><strong>Completion Date:</strong> <?= htmlspecialchars($task['CompletionDate']) ?></p>
-                                            <p><strong>Category:</strong> <?= htmlspecialchars($task['Category']) ?></p>
-                                            <p><strong>Estimated Duration:</strong> <?= htmlspecialchars($task['EstimatedDuration']) ?></p>
-                                            <p><strong>Price:</strong> ₱<?= number_format($task['Price'], 2) ?></p>
-                                            <p><strong>Task Description:</strong> <?= nl2br(htmlspecialchars($task['Description'])) ?></p>
-                                            <p><strong>Contact via Email:</strong> <?= htmlspecialchars($task['PosterEmail']) ?></p>
-                                            <p><strong>Notes:</strong> <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
+                                            
+                                            <div class="task-modal-header">
+                                                <h2><?= htmlspecialchars($task['Title']) ?></h2>
+                                                <span class="close" onclick="document.getElementById('<?= $modalId ?>').style.display='none'">&times;</span>
+                                            </div>
+
+                                            <div class="posted-by-container">
+                                                <div class="posted-by-title">
+                                                    <p>Posted by</p>
+                                                </div>
+                                                <div class="community-poster-profile-details">
+                                                    <div class="community-poster-profile-details-profile">
+                                                        <div class="community-poster-profile-details-profile-pic">
+                                                            <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
+                                                            alt="Profile Picture"> 
+                                                        </div>
+                                                        <div class="community-poster-profile-details-details">
+                                                            <h2><?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></h2>
+                                                            <!-- <p>Posted <?= date("F j, Y, g:i a", strtotime($task['DatePosted'])) ?></p> -->
+                                                            <p>Posted <?= (new DateTime($task['DatePosted']))->diff(new DateTime())->days ?> day(s) ago</p>
+                                                        </div>
+                                                    </div>
+                                                    <div id="taskActionSection">
+                                                        <p><?= htmlspecialchars($task['Status']) ?></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="task-details-container">
+                                                <!-- Task Details -->
+                                                <div class="task-details-1">
+                                                <!-- <p>📍 Location Type:<?= htmlspecialchars($task['LocationType']) ?></p> -->
+                                                    <p class="task-details-1-location"><strong>📍 Location:</strong> <?= htmlspecialchars($task['Location']) ?></p>
+                                                    <p class="task-details-1-date"><strong>📅 Completion Date:</strong> <?= htmlspecialchars($task['CompletionDate']) ?></p>
+                                                    <p><strong>🧩 Category:</strong> <?= htmlspecialchars($task['Category']) ?></p>
+                                                </div>
+
+                                                <div class="task-details-2">
+                                                    <div class="task-details-inner-wrapper">
+                                                        <p><strong>⏳ Estimated Duration:</strong> <?= htmlspecialchars($task['EstimatedDuration']) ?></p>
+                                                        <p><strong>💵 Price:</strong> ₱<?= number_format($task['Price'], 2) ?></p>
+                                                    </div>
+                                                </div>
+
+                                                <p><strong>Task Description:</strong> <?= nl2br(htmlspecialchars($task['Description'])) ?></p>
+                                                
+                                                <p><strong>Contact via Email:</strong> <?= htmlspecialchars($task['PosterEmail']) ?></p>
+                                                
+                                                <p><strong>Notes:</strong> <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
+                                            
+                                            </div>
                                         </div>
                                     </div>
                                 <?php endwhile; ?>
