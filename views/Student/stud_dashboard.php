@@ -89,8 +89,51 @@
             <div class="header-main-tools">
                 <!-- ------------------------------NOTIFICATIONS------------------------------ -->
                 <!-- Notification Button -->
+                 <?php
+                    // Fetch notifications for the logged-in student
+                    $notificationsQuery = $connection->prepare("
+                        SELECT NotificationID, Message, IsRead, DateCreated
+                        FROM notifications
+                        WHERE UserID = ?
+                        ORDER BY DateCreated DESC
+                    ");
+                    $notificationsQuery->bind_param("i", $studentID);
+                    $notificationsQuery->execute();
+                    $notificationsResult = $notificationsQuery->get_result();
+                ?>
+                <?php
+                    // Fetch the count of unread notifications for the logged-in student
+                    $unreadCountQuery = $connection->prepare("
+                        SELECT COUNT(*) AS UnreadCount
+                        FROM notifications
+                        WHERE UserID = ? AND IsRead = 0
+                    ");
+                    $unreadCountQuery->bind_param("i", $studentID);
+                    $unreadCountQuery->execute();
+                    $unreadCountResult = $unreadCountQuery->get_result();
+                    $unreadCount = 0;
+
+                    if ($unreadCountResult->num_rows > 0) {
+                        $row = $unreadCountResult->fetch_assoc();
+                        $unreadCount = $row['UnreadCount'];
+                    }
+                ?>
                 <div class="header-main-notifications">
-                    <img src="../../assets/images/notification-bell-icon.jpg" alt="Notifications" onclick="toggleNotifications()">
+                    <img src="../../assets/images/notification-bell-icon.jpg" alt="Notifications" onclick="toggleNotificationsDropdown()" data-community-id="<?php echo $studentID; ?>">
+                    <?php if ($unreadCount > 0): ?>
+                        <span id="notificationBadge" class="notification-badge"><?php echo $unreadCount; ?></span>
+                    <?php endif; ?>
+                    <div id="notificationsDropdown" class="notifications-dropdown">
+                        <h3>Notifications</h3>
+                        <ul>
+                            <?php while ($notification = $notificationsResult->fetch_assoc()): ?>
+                                <li class="<?= $notification['IsRead'] ? 'read' : 'unread' ?>">
+                                    <?= htmlspecialchars($notification['Message']) ?>
+                                    <br><small><?= htmlspecialchars($notification['DateCreated']) ?></small>
+                                </li>
+                            <?php endwhile; ?>
+                        </ul>
+                    </div>
                 </div>
                 <div class="profile-icon-mobile">
                     <?php
@@ -105,7 +148,7 @@
             </div>
         </header>
 
-        <?php
+        <!-- <?php
             // Fetch notifications for the logged-in student
             $notificationQuery = $connection->prepare("
                 SELECT t.Title, t.Location, t.Description, t.Notes, u.FirstName, u.LastName, u.Email
@@ -123,7 +166,7 @@
             while ($notification = $notificationResult->fetch_assoc()) {
                 $notifications[] = $notification;
             }
-        ?>
+        ?> -->
 
         <div class="body-container">
             <div class="body-content">
@@ -422,35 +465,81 @@
                         <!-- ------------------------------VIEW POSTS (MODAL, DETAILED)------------------------------ -->
                         <div id="<?= $modalId ?>" class="modal">
                             <div class="modal-content">
-                                <span class="close" onclick="document.getElementById('<?= $modalId ?>').style.display='none'">&times;</span>
-                                <h2><?= htmlspecialchars($task['Title']) ?></h2>
-                                <p><strong>Posted On:</strong> <?= date("F j, Y, g:i a", strtotime($task['DatePosted'])) ?></p>
-                                <p class="posted-time" data-dateposted="<?= $task['DatePosted'] ?>"></p>
 
+                                <div class="task-modal-header">
+                                    <h2><?= htmlspecialchars($task['Title']) ?></h2>
+                                    <span class="close" onclick="document.getElementById('<?= $modalId ?>').style.display='none'">&times;</span>
+                                </div>
+
+                                <div class="posted-by-container">
+                                    <div class="posted-by-title">
+                                        <p>Posted by</p>
+                                    </div>
+                                    <div class="community-poster-profile-details">
+                                        <div class="community-poster-profile-details-profile">
+                                            <div class="community-poster-profile-details-profile-pic">
+                                                <img class="view-post-modal-community-profile-picture" src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
+                                                alt="Profile Picture" 
+                                                onclick="openCommunityProfileModal('<?= htmlspecialchars($task['ProfilePicture']) ?>', '<?= htmlspecialchars($task['FirstName'] . ' ' . $task['LastName']) ?>', '<?= htmlspecialchars($task['PosterEmail']) ?>', 'Community')">
+                                            </div>
+                                            <div class="community-poster-profile-details-details">
+                                                <h2><?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></h2>
+                                                <!-- <p><strong>Posted On:</strong> <?= date("F j, Y, g:i a", strtotime($task['DatePosted'])) ?></p> -->
+                                                <p class="posted-time" data-dateposted="<?= $task['DatePosted'] ?>"></p>
+                                            </div>
+                                        </div>
+                                        <div id="taskActionSection">
+                                            <p><?= htmlspecialchars($task['Status']) ?></p>
+                                        </div>
+                                    </div>
+                                </div>
                                 <!-- <img src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
                                     alt="Profile Picture" 
                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;"> 
                                 -->
 
-                                <img class="view-post-modal-community-profile-picture" src="../Community/<?= htmlspecialchars($task['ProfilePicture']) ?>" 
-                                    alt="Profile Picture" 
-                                    onclick="openCommunityProfileModal('<?= htmlspecialchars($task['ProfilePicture']) ?>', '<?= htmlspecialchars($task['FirstName'] . ' ' . $task['LastName']) ?>', '<?= htmlspecialchars($task['PosterEmail']) ?>', 'Community')">
-                                <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
-                                <p><strong>Status:</strong> <?= htmlspecialchars($task['Status']) ?></p>
-                                <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
-                                <!-- <p><strong>Location Type:</strong> <?= htmlspecialchars($task['LocationType']) ?></p> -->
-                                <p><strong>Location:</strong> <?= htmlspecialchars($task['Location']) ?></p>
-                                <p><strong>Completion Date:</strong> <?= htmlspecialchars($task['CompletionDate']) ?></p>
-                                <p><strong>Category:</strong> <?= htmlspecialchars($task['Category']) ?></p>
-                                <p><strong>Estimated Duration:</strong> <?= htmlspecialchars($task['EstimatedDuration']) ?></p>
-                                <p><strong>Price:</strong> ₱<?= number_format($task['Price'], 2) ?></p>
-                                <p><strong>Task Description:</strong> <?= nl2br(htmlspecialchars($task['Description'])) ?></p>
-                                <p><strong>Contact via Email:</strong> <?= htmlspecialchars($task['PosterEmail']) ?></p>
-                                <p><strong>Notes:</strong> <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
+                                <div class="task-details-container">
 
+                                    <div class="task-details-1">
+                                        <p class="task-details-1-location"><strong>📍 Location</strong><br/>
+                                        <?= htmlspecialchars($task['Location']) ?></p>
+                                        
+                                        <p class="task-details-1-date"><strong>📅 Completion Date</strong><br/>
+                                        <?= htmlspecialchars($task['CompletionDate']) ?></p>
+                                        
+                                        <p><strong>🧩 Category</strong><br/>
+                                        <?= htmlspecialchars($task['Category']) ?></p>
+                                    </div>  
+
+                                    <div class="task-details-2">
+                                        <div class="task-details-inner-wrapper">
+                                            <p><strong>⏳ Estimated Duration</strong><br/>
+                                            <?= htmlspecialchars($task['EstimatedDuration']) ?></p>
+
+                                            <p><strong>💵 Price</strong><br/>
+                                            ₱<?= number_format($task['Price'], 2) ?></p>
+                                        </div>
+                                    </div>
+
+                                    <p><strong>Task Description</strong><br/>
+                                    <?= nl2br(htmlspecialchars($task['Description'])) ?></p>
+                                    
+                                    <p><strong>✉️ Contact via Email</strong><br/>
+                                    <?= htmlspecialchars($task['PosterEmail']) ?></p>
+                                    
+                                    <p><strong>📌 Notes / Requirements</strong><br/>
+                                    <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
+                                </div>     
+                                    
+                                <!-- <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p>
+                                
+                                <p><strong>Posted by:</strong> <?= htmlspecialchars($task['FirstName'] . " " . $task['LastName']) ?></p> -->
+                                <!-- <p><strong>Location Type:</strong> <?= htmlspecialchars($task['LocationType']) ?></p> -->
+                                
                                 <!-- ------------------------------LEAVE A COMMENT------------------------------ -->
+                                <hr class="hr-comments"/>
+                                <h3 class="h3-comments">Comments</h3>
                                 <div class="leave-a-comment-container">
-                                    <h3>Leave a Comment</h3>
                                     <?php if ($ongoingTaskCount >= 2): ?>
                                         <p><strong>You cannot leave a comment because you already have 2 ongoing tasks. Complete a task to comment on new ones.</strong></p>
                                     <?php else: ?>
@@ -464,51 +553,56 @@
                                 </div>
 
                                 <!-- ------------------------------COMMENT SECTION------------------------------ -->
-                                <div class="view-posts-comments-container">
-                                    <h3>Comments</h3>
-                                    <?php if ($commentResult->num_rows > 0): ?>
-                                        <?php while ($comment = $commentResult->fetch_assoc()): ?>
-                                            <div class="comment-box">
-                                                <?php
-                                                // Fetch task poster's profile picture
-                                                $posterStmt = $connection->prepare("SELECT ProfilePicture FROM users WHERE UserID = ?");
-                                                $posterStmt->bind_param("i", $comment['StudentID']);
-                                                $posterStmt->execute();
-                                                $posterResult = $posterStmt->get_result();
-                                                $posterData = $posterResult->fetch_assoc();
-                                                ?>
-                                                
-                                                <!-- Display profile picture of the student who commented -->
-                                                <img src="../Student/<?= htmlspecialchars($posterData['ProfilePicture']) ?>" alt="Poster Profile Picture">
+                                <div id="commentsSection">
+                                    <div class="view-posts-comments-container">
+                                        <?php if ($commentResult->num_rows > 0): ?>
+                                            <?php while ($comment = $commentResult->fetch_assoc()): ?>
+                                                <div class="comment-box">
+                                                    <?php
+                                                    // Fetch task poster's profile picture
+                                                    $posterStmt = $connection->prepare("SELECT ProfilePicture FROM users WHERE UserID = ?");
+                                                    $posterStmt->bind_param("i", $comment['StudentID']);
+                                                    $posterStmt->execute();
+                                                    $posterResult = $posterStmt->get_result();
+                                                    $posterData = $posterResult->fetch_assoc();
+                                                    ?>
+                                                    
+                                                    <div class='comment-box-profile'>
+                                                        <!-- Display profile picture of the student who commented -->
+                                                        <img src="../Student/<?= htmlspecialchars($posterData['ProfilePicture']) ?>" alt="Poster Profile Picture">
+                                                    </div>  
 
-                                                <p><strong><?= htmlspecialchars($comment['FirstName'] . " " . $comment['LastName']) ?></strong></p>
-                                                
-                                                <?php
-                                                    $ratingStmt = $connection->prepare("
-                                                        SELECT AVG(Rating) as avg_rating
-                                                        FROM taskratings
-                                                        WHERE StudentID = ?
-                                                    ");
-                                                    $ratingStmt->bind_param("i", $comment['StudentID']);
-                                                    $ratingStmt->execute();
-                                                    $ratingResult = $ratingStmt->get_result();
-                                                    $ratingData = $ratingResult->fetch_assoc();
-                                                    $avgRating = isset($ratingData['avg_rating']) ? round($ratingData['avg_rating']) : 0; // Default to 0 if no ratings
-                                                ?>
-                                                
-                                                <p class="student-comment-rating">Rating:
-                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                        <span><?= $i <= $avgRating ? "★" : "☆" ?></span>
-                                                    <?php endfor; ?>
-                                                </p>
-                                                
-                                                <p class="posted-time" data-dateposted="<?= $comment['DatePosted'] ?>"></p>
-                                                <p><?= nl2br(htmlspecialchars($comment['Content'])) ?></p>
-                                            </div>
-                                        <?php endwhile; ?>
-                                    <?php else: ?>
-                                        <p>No comments yet.</p>
-                                    <?php endif; ?>
+                                                    <div class='comment-box-content'>
+                                                        <p><strong><?= htmlspecialchars($comment['FirstName'] . " " . $comment['LastName']) ?></strong></p>
+                                                        
+                                                        <?php
+                                                            $ratingStmt = $connection->prepare("
+                                                                SELECT AVG(Rating) as avg_rating
+                                                                FROM taskratings
+                                                                WHERE StudentID = ?
+                                                            ");
+                                                            $ratingStmt->bind_param("i", $comment['StudentID']);
+                                                            $ratingStmt->execute();
+                                                            $ratingResult = $ratingStmt->get_result();
+                                                            $ratingData = $ratingResult->fetch_assoc();
+                                                            $avgRating = isset($ratingData['avg_rating']) ? round($ratingData['avg_rating']) : 0; // Default to 0 if no ratings
+                                                        ?>
+                                                        <p class="posted-time" data-dateposted="<?= $comment['DatePosted'] ?>"></p>
+                                                        
+                                                        <p class="student-comment-rating">
+                                                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                                <span><?= $i <= $avgRating ? "★" : "☆" ?></span>
+                                                            <?php endfor; ?>
+                                                        </p>
+                                                        
+                                                        <p><?= nl2br(htmlspecialchars($comment['Content'])) ?></p>
+                                                    </div>
+                                                </div>
+                                            <?php endwhile; ?>
+                                        <?php else: ?>
+                                            <p>No comments yet.</p>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -519,7 +613,7 @@
                     </div>
 
                     <!-- Community Profile Modal -->
-                    <div id="communityProfileModal" class="modal community-profile-modal-click-on-task">
+                    <div id="communityProfileModal" class="community-profile-modal-click-on-task">
                         <span class="close" onclick="closeCommunityProfileModal()">&times;</span>
                         <div class="community-profile-modal-click-on-task-content">
                             <img id="communityProfilePicture" src="" alt="Profile Picture">
@@ -534,6 +628,42 @@
         
         <script src="stud_script.js"></script>
         <script>
+
+            function toggleNotificationsDropdown() {
+                const dropdown = document.getElementById('notificationsDropdown');
+                const badge = document.getElementById('notificationBadge');
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+
+                // Mark notifications as read
+                if (dropdown.style.display === 'block') {
+                    const studentID = document.querySelector('.header-main-notifications img').getAttribute('data-community-id');
+
+                    fetch('mark_notifications_read.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ studentID: studentID }),
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        console.log(data); // Log the response for debugging
+                        if (badge) {
+                            badge.style.display = 'none'; // Hide the badge
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                }
+            }
+
+            // Close the dropdown if clicked outside
+            window.addEventListener('click', function(event) {
+                const dropdown = document.getElementById('notificationsDropdown');
+                if (!event.target.closest('.header-main-notifications')) {
+                    dropdown.style.display = 'none';
+                }
+            });
+
             function openCommunityProfileModal(profilePicture, fullName, email, role) {
                 // Populate the modal with the community poster's details
                 document.getElementById('communityProfilePicture').src = '../Community/' + profilePicture;

@@ -11,7 +11,7 @@
 
         // Fetch the community user ID to verify the task belongs to the community
         $taskQuery = $connection->prepare("
-            SELECT CommunityID 
+            SELECT CommunityID, Title 
             FROM tasks 
             WHERE TaskID = ?
         ");
@@ -21,7 +21,8 @@
 
         if ($taskResult->num_rows > 0) {
             $taskData = $taskResult->fetch_assoc();
-            
+            $taskTitle = $taskData['Title'];
+
             // Check if a rating already exists for this task and student
             $checkRatingQuery = $connection->prepare("
                 SELECT RatingID 
@@ -67,6 +68,28 @@
                         $updateTrustPointsQuery->close();
                     }
 
+                    // -------------------------------SEND NOTIFICATION-------------------------------
+                    // Fetch the community poster's name
+                    $communityQuery = $connection->prepare("
+                        SELECT CONCAT(FirstName, ' ', LastName) AS CommunityName 
+                        FROM users 
+                        WHERE UserID = ?
+                    ");
+                    $communityQuery->bind_param("i", $communityID);
+                    $communityQuery->execute();
+                    $communityResult = $communityQuery->get_result();
+                    $communityName = $communityResult->fetch_assoc()['CommunityName'];
+
+                    // Insert a notification for the student
+                    $notificationMessage = "Congratulations for completing the task: $taskTitle. You received $trustPoints trust points.";
+                    $insertNotificationQuery = $connection->prepare("
+                        INSERT INTO notifications (UserID, Message, IsRead, DateCreated)
+                        VALUES (?, ?, 0, NOW())
+                    ");
+                    $insertNotificationQuery->bind_param("is", $studentID, $notificationMessage);
+                    $insertNotificationQuery->execute();
+                    $insertNotificationQuery->close();
+
                     echo "<script>alert('Rating submitted successfully!'); window.location.href = 'comm_dashboard.php';</script>";
                 } else {
                     echo "<script>alert('Failed to submit rating. Please try again.'); window.location.href = 'comm_dashboard.php';</script>";
@@ -76,7 +99,6 @@
             }
 
             $checkRatingQuery->close();
-            
         } else {
             echo "<script>alert('Task not found.'); window.location.href = 'comm_dashboard.php';</script>";
         }

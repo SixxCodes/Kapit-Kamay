@@ -45,7 +45,6 @@
 
     .profile-icon-mobile {
         display: inline-block;
-        
     }
 
     .body-content-user {
@@ -54,6 +53,18 @@
 
     .body-content-task {
         margin: auto;
+    }
+
+    .task-details-container {
+        flex-direction: column;
+    }
+    .task-details-1 {
+        flex-direction: column;
+    }
+
+    .task-details-inner-wrapper {
+        flex-direction: column;
+        width: 100%;
     }
 }
 
@@ -99,6 +110,22 @@
 
     .active-post-grid-container {
         grid-template-columns: 1fr;
+    }
+
+    .modal {
+        margin-bottom: 100px;
+    }
+
+    .task-details-container {
+        flex-direction: column;
+    }
+    .task-details-1 {
+        flex-direction: column;
+    }
+
+    .task-details-inner-wrapper {
+        flex-direction: column;
+        width: 100%;
     }
 
 }
