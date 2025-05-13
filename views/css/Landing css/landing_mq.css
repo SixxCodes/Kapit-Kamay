@@ -1,0 +1,31 @@
+@media screen and (max-width: 700px) {
+    .main-header-logo {
+        margin-left: 10px;
+    }
+
+    .main-header-nav {
+        display: none;
+    }
+
+    .hamburger-icon-mobile {
+        display: inline;
+    }
+
+    .section-1-content {
+        flex-direction: column;
+    }
+
+    .section-1-content-pic {
+        order: 1;
+    }
+
+    .section-1-content-text {
+        order: 2;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .main-header-logo {
+        margin-left: 10px;
+    }
+}

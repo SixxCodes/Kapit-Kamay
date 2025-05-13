@@ -380,46 +380,50 @@
                                 while ($task = $active_result->fetch_assoc()) {
 
                                     echo "<div class='task-box square' 
-                                    data-taskid='" . $task['TaskID'] . "' 
-                                    data-title='" . htmlspecialchars($task['Title']) . "' 
-                                    data-description='" . htmlspecialchars($task['Description']) . "' 
-                                    data-locationtype='" . $task['LocationType'] . "' 
-                                    data-location='" . $task['Location'] . "' 
-                                    data-category='" . $task['Category'] . "' 
-                                    data-completiondate='" . $task['CompletionDate'] . "' 
-                                    data-price='" . $task['Price'] . "' 
-                                    data-notes='" . htmlspecialchars($task['Notes']) . "' 
-                                    data-dateposted='" . $task['DatePosted'] . "' 
-                                    data-status='" . $task['Status'] . "' 
-                                    data-estimatedduration='" . htmlspecialchars($task['EstimatedDuration']) . "' 
-                                    onclick='openTaskModal(this)'>
-                                <div class='active-task-header'>
-                                    <h3>" . htmlspecialchars($task['Title']) . "</h3>
-                                    <p>💬" . $task['CommentCount'] . "</p>
-                                </div>
-                                <div class='active-task-content'>
-                                    <div class='active-task-profile-pic'>
-                                        <img src='" . $profileSrc . "' alt='Profile Picture' class='poster-profile-picture'>
-                                    </div>
-                                    <div class='active-task-information-container'>
-                                        <div class='active-task-owner'>
-                                            <p>Posted by: " . htmlspecialchars($firstName . ' ' . $lastName) . "</p>
-                                        </div>
-                                        <div class='active-task-detail-container'>
-                                            <div class='active-task-detail'>
-                                                <p>📍" . htmlspecialchars($task['LocationType']) . "</p>
-                                            </div>
-                                            <div class='active-task-detail'>
-                                                <p>📅" . htmlspecialchars($task['CompletionDate']) . "</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class='active-task-price'>
-                                        <p><strong>₱" . number_format($task['Price']) . "</strong></p>
-                                    </div>
+                                            data-taskid='" . $task['TaskID'] . "' 
+                                            data-title='" . htmlspecialchars($task['Title']) . "' 
+                                            data-description='" . htmlspecialchars($task['Description']) . "' 
+                                            data-locationtype='" . $task['LocationType'] . "' 
+                                            data-location='" . $task['Location'] . "' 
+                                            data-category='" . $task['Category'] . "' 
+                                            data-completiondate='" . $task['CompletionDate'] . "' 
+                                            data-price='" . $task['Price'] . "' 
+                                            data-notes='" . htmlspecialchars($task['Notes']) . "' 
+                                            data-dateposted='" . $task['DatePosted'] . "' 
+                                            data-status='" . $task['Status'] . "' 
+                                            data-estimatedduration='" . htmlspecialchars($task['EstimatedDuration']) . "' 
+                                            onclick='openTaskModal(this)'>
 
-                                </div>
-                            </div>";
+                                        <div class='active-task-header'>
+                                            <h3>" . htmlspecialchars($task['Title']) . "</h3>
+                                            <p>💬" . $task['CommentCount'] . "</p>
+                                        </div>
+
+                                        <div class='active-task-content'>
+                                            <div class='active-task-profile-pic'>
+                                                <img src='" . $profileSrc . "' alt='Profile Picture' class='poster-profile-picture'>
+                                            </div>
+
+                                            <div class='active-task-information-container'>
+                                                <div class='active-task-owner'>
+                                                    <p>Posted by: " . htmlspecialchars($firstName . ' ' . $lastName) . "</p>
+                                                </div>
+                                                <div class='active-task-detail-container'>
+                                                    <div class='active-task-detail'>
+                                                        <p>📍" . htmlspecialchars($task['LocationType']) . "</p>
+                                                    </div>
+                                                    <div class='active-task-detail'>
+                                                        <p>📅" . htmlspecialchars($task['CompletionDate']) . "</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class='active-task-price'>
+                                                <p><strong>₱" . number_format($task['Price']) . "</strong></p>
+                                            </div>
+                                        </div>
+
+                                    </div>";
                                 }
                             } else {
                                 echo "<p>No active posts found.</p>";

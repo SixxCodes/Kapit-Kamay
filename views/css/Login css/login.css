@@ -1,0 +1,46 @@
+:root {
+    --main-color: #66b539;
+    --light-green: #b1d69b;
+    --black: #151b1f;
+    --gray: #374548;
+    --white: #e8f7dd;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    background-image: url('../../../assets/images/green-lines1.png'); 
+    background-size: cover;         /* Scale image to cover entire screen */
+    background-repeat: no-repeat; 
+    background-color: var(--light-green);
+    margin: 0;
+    font-family: Arial, sans-serif;
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+} 
+
+/* The blurred background image */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-image: url('your-image.jpg');
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px); /* Adjust the blur level */
+  z-index: -1;
+}
+
+
+.main-header {
+    color: pink;
+}
