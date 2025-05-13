@@ -98,7 +98,7 @@
                 </div>
                 <div class="profile-icon-mobile">
                     <?php
-                        $profileSrc = !empty($user['ProfilePicture']) ? $user['ProfilePicture'] : "../assets/default-avatar.png";
+                        $profileSrc = !empty($user['ProfilePicture']) ? $user['ProfilePicture'] : "../../assets/images/default-profile-pic.jpg";
                     ?>
                     <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
                         alt="Profile Picture" 
@@ -188,7 +188,7 @@
                         <div class="user-modal-content-profile-picture">
                             <h2><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h2>
                             <?php
-                                $profileSrc = !empty($user['ProfilePicture']) ? $user['ProfilePicture'] : "../assets/default-avatar.png";
+                                $profileSrc = !empty($user['ProfilePicture']) ? $user['ProfilePicture'] : "../../assets/images/default-profile-pic.jpg";
                             ?>
 
                             <img src="<?php echo htmlspecialchars($profileSrc); ?>" 

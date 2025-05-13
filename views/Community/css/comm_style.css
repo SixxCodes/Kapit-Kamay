@@ -23,6 +23,10 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--black);
 }
 
+p {
+    color: var(--black);
+}
+
 /* --------------------------------------HEADER-------------------------------------- */
 .main-header {
     /* background-color: red; */
@@ -500,7 +504,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .active-task-detail p {
-    background-color: rgb(196, 196, 196);
+    background-color: var(--light-green);
     padding: 5px;
     border-radius: 100px;
     font-size: clamp(0.8rem, 1vw, 1rem);

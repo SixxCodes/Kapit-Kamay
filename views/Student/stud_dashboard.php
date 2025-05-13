@@ -136,15 +136,15 @@
                     </div>
                 </div>
                 <div class="profile-icon-mobile">
-                    <?php
-                        $profileSrc = !empty($user['ProfilePicture']) ? $user['ProfilePicture'] : "../assets/default-avatar.png";
-                    ?>
-                    <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
-                        alt="Profile Picture" 
-                        class="user-icon"
-                        id="userIcon" 
-                        onclick="openUserModal()">
-                </div>
+    <?php
+        $profileSrc = !empty($user['ProfilePicture']) ? $user['ProfilePicture'] : "../../assets/images/default-profile-pic.jpg";
+    ?>
+    <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
+        alt="Profile Picture" 
+        class="user-icon"
+        id="userIcon" 
+        onclick="openUserModal()">
+</div>
             </div>
         </header>
 
@@ -247,14 +247,15 @@
                         </div>
                         
                     </div>
+                </div>
 
-                    <!-- -------------------PROFILE (ICON)------------------- -->
+                <!-- -------------------PROFILE (ICON)------------------- -->
                     <!-- USER INFO MODAL -->
                     <div id="userModal" class="userModal">
                         <div class="userModal-content">
                             <div class="user-modal-content-profile-picture">
                                 <?php
-                                    $profileSrc = !empty($user['ProfilePicture']) ? $user['ProfilePicture'] : "../assets/default-avatar.png";
+                                    $profileSrc = !empty($user['ProfilePicture']) ? $user['ProfilePicture'] : "../../assets/images/default-profile-pic.jpg";
                                 ?>
 
                                 <img src="<?php echo htmlspecialchars($profileSrc); ?>" 
@@ -289,7 +290,6 @@
                             <a href="../logout.php">Logout</a>
                         </div>
                     </div>
-                </div>
                     
                 <div class="body-content-task">
                     <!-- ------------------------------SEARCH------------------------------ -->

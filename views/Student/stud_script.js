@@ -54,7 +54,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // ------------------------------USER------------------------------
 function openUserModal() {
-    document.getElementById('userModal').style.display = 'block';
+    const modal = document.getElementById('userModal');
+    if (modal) {
+        modal.style.display = 'block';
+    }
 }
 
 function closeUserModal() {
