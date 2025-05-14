@@ -81,7 +81,7 @@
             </div>
             <div class="header-main-tools">
                 <div class="header-main-notifications">
-                    <img src="../../assets/images/notification-bell-icon.jpg" alt="Notifications" onclick="toggleNotifications()" data-community-id="<?php echo $communityID; ?>">
+                    <img src="../../assets/images/notif-btn-green.png" alt="Notifications" onclick="toggleNotifications()" data-community-id="<?php echo $communityID; ?>">
                     <?php
                         // Fetch unread notifications count
                         $stmtUnread = $connection->prepare("SELECT COUNT(*) AS UnreadCount FROM notifications WHERE UserID = ? AND IsRead = 0");
@@ -221,7 +221,8 @@
                         <!-- <p><strong>Trust Points:</strong> <?php echo htmlspecialchars($user['TrustPoints']); ?></p> -->
                         
                         <!-- ------------------------------LOG OUT------------------------------ -->
-                        <a href="../logout.php">Logout</a>
+                        <br/>
+                        <a class="logout-btn" href="../logout.php">Logout</a>
                     </div>
                 </div>
 
@@ -271,16 +272,13 @@
                                         <div class="create-task-content-2-items">
                                             <label>⏳ Estimated Duration</label><br/>
                                             <select name="estimated_duration" required>
-                                                <option value="less than 10 mins">less than 10mins</option>
-                                                <option value="10 mins">10 mins</option>
+                                                <option value="10-30">10-30</option>
+                                                <option value="30-60">30-60</option>
                                                 <option value="30 mins">30 mins</option>
-                                                <option value="1 hour">1 hour</option>
-                                                <option value="2 hours">2 hours</option>
-                                                <option value="4 hours">4 hours</option>
-                                                <option value="8 hours">8 hours</option>
-                                                <option value="1 day">1 day</option>
-                                                <option value="2 days">2 days</option>
-                                                <option value="1 week">1 week</option>
+                                                <option value="1hr-3hr">1hr-3hr</option>
+                                                <option value="1-2hr">1-2hr</option>
+                                                <option value="2-4hr">2-4hr</option>
+                                                <option value="6-8hr">6-8hr</option>
                                             </select><br>
                                         </div>
                                     </div>
@@ -610,6 +608,7 @@
                                                             echo "<p>Posted by: " . htmlspecialchars($firstName . ' ' . $lastName) . "</p>";
                                                         echo "</div>";
                                                     echo "</div>";
+
                                                     echo "<div class='previous-task-details-content'>";
                                                         echo "<div class='previous-task-detail'>";
                                                             echo "<p>📍" . htmlspecialchars($task['LocationType']) . "</p>";
@@ -619,6 +618,7 @@
                                                             echo "<p>📅" . htmlspecialchars($task['CompletionDate']) . "</p>";
                                                         echo "</div>";
                                                     echo "</div>";
+
                                                 echo "</div>";
 
                                                 echo "<div class='previous-task-price'>";

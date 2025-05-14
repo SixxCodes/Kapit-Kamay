@@ -14,6 +14,27 @@
   box-sizing: border-box;
 }
 
+/* WebKit Browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 6px; /* Thin vertical scrollbar */
+  height: 6px; /* Thin horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Optional: no background */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: green; /* Green scrollbar thumb */
+  border-radius: 10px; /* Optional: rounded edges */
+}
+
+/* Firefox */
+body {
+  scrollbar-width: thin;             /* Makes it thin */
+  scrollbar-color: green transparent; /* Green thumb, transparent track */
+}
+
 body {
     font-family: "Poppins", sans-serif;
     background-color: var(--white);
@@ -25,6 +46,11 @@ h1, h2, h3, h4, h5, h6 {
 
 p {
     color: var(--black);
+}
+
+input, select, textarea {
+    background-color: var(--white);
+    border: 0;
 }
 
 /* --------------------------------------HEADER-------------------------------------- */
@@ -83,22 +109,36 @@ p {
 .notifications-dropdown {
     display: none; /* Initially hidden */
     position: absolute;
-    background-color: white;
-    border: 1px solid #ccc;
     width: 300px;
     max-height: 400px;
     overflow-y: auto;
-    right: 0;
-    top: 50px;
+    background-color: var(--light-green);
+    right: 50px;
+    top: 60px;
     z-index: 1050; /* Higher than the header and search bar */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
+    border-radius: 10px;
 }
 
 .notifications-dropdown h3{
     margin-top: 20px;
     margin-left: 10px;
     margin-bottom: 0;
+    color: var(--black);
+}
+
+.notifications-dropdown ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.notifications-dropdown ul li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
 }
 
 .notification-item {
@@ -106,8 +146,8 @@ p {
     border-bottom: 1px solid #eee;
 }
 
-.notification-item.unread {
-    color: #000000;
+.notifications-dropdown ul li.unread {
+    font-weight: bold;
 }
 
 .notification-item.read {
@@ -169,7 +209,7 @@ p {
 /* --------------------------------------USER-------------------------------------- */
 /* Profile Summary */
 .profile-summary-pc {
-    border: 1px solid black;
+    border: 0;
     border-radius: 20px;
     display: flex;
     flex-direction: column;
@@ -177,11 +217,13 @@ p {
     padding-top: 60px;
     height: 520px;
     width: 250px;
+    background-color: var(--light-green);
 }
 
 .profile-summary-pc img {
     display: block; 
     margin: 0 auto;
+    border: 1px solid var(--main-color);
 }
 
 .profile-summary-pc h2 {
@@ -281,6 +323,7 @@ p {
     margin-bottom: 20px;
     border-radius: 10px;
     z-index: 500;
+    border: 1px solid var(--main-color);
 }
 
 /* --------------------------------------TASKS-------------------------------------- */
@@ -302,6 +345,15 @@ p {
     font-size: 40px;
     padding: 50px 150px;
     border-radius: 10px;
+    color: var(--gray);
+    border: 1px solid var(--main-color);
+    background-color: var(--white);
+    transition: 0.5s;
+}
+
+.create-button:hover {
+    box-shadow: 3px 3px 5px 2px var(--light-green), -3px -3px 5px 2px var(--light-green);
+    
 }
 
 .create-task-modal {
@@ -341,10 +393,40 @@ p {
 .create-task-header-item-1 input{
     font-size: clamp(1rem, 1.5vw, 2rem);
     border: 0;
+    background-color: white;
 }
 
 .create-task-header-item-2 {
     display: flex;
+    gap: 5px;
+}
+
+.create-task-header-item-2 input {
+    padding: 8px 5px;
+    background-color: var(--main-color);
+    border: 0;
+    cursor: pointer;
+    color: white;
+    border-radius: 10px;
+}
+
+.create-task-header-item-2 input:hover {
+    border: 1px solid var(--main-color);
+    background-color: var(--white);
+    color: var(--black);
+}
+
+.create-task-header-item-2 button {
+    padding: 8px 5px;    
+    border: 1px solid var(--main-color);
+    background-color: var(--white);
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.create-task-header-item-2 button:hover {
+    background-color: var(--main-color);
+    color: white;
 }
 
 .create-task-content-1 {
@@ -442,7 +524,7 @@ p {
 }
 
 .create-task-grid-container .task-box {
-  background: #f0f0f0;
+  background: var(--light-green);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -451,10 +533,11 @@ p {
   height: 150px;
   padding: 20px;
   gap: 10px;
+  transition: 0.3s;
 }
 
 .create-task-grid-container .task-box:hover {
-    background-color: rgb(160, 157, 157);
+    background: var(--main-color);
 }
 
 .active-task-header {
@@ -538,7 +621,7 @@ p {
     background-color: #fff;
     margin: auto;
     padding: 30px;
-    border: 1px solid #888;
+    border: 0;
     width: 100%;
     max-width: 700px;
     border-radius: 10px;
@@ -596,6 +679,7 @@ p {
 
 .status-dropdown {
     width: 60px;
+    background-color: var(--light-green);
 }
 
 .task-details-container {
@@ -630,8 +714,12 @@ p {
 }
 
 /* --------------------------------------COMMENTS-------------------------------------- */
+.hr-comments {
+    border: 1px solid var(--main-color);
+}
+
 .h3-comments {
-    margin: 20px 0;
+    margin: 10px 0;
 }
 
 .comment-box {
@@ -646,10 +734,10 @@ p {
 }
 
 .comment-box-content {
-    border: 1px solid #ccc; 
     padding: 5px 20px;
     border-radius: 10px;
     /* width: 100%; */
+    background-color: var(--white);
 }
 
 .student-comment-rate {
@@ -659,9 +747,17 @@ p {
 
 .comment-box-accept-btn {
     font-size: 14px;
-    padding: 2px 25px;
+    padding: 6px 25px;
     margin: 10px 0;
     border-radius: 7px;
+    border: 0;
+    background-color: var(--main-color);
+    color: white;
+    transition: 0.3s;
+}
+
+.comment-box-accept-btn:hover {
+    background-color: #50912b;
 }
 
 #profileModal {
@@ -705,14 +801,13 @@ p {
 }
 
 .previous-task-container {
-    border:1px solid #aaa; 
+    border:1px solid var(--light-green); 
     padding:10px; 
     margin-bottom:10px; 
-    background:#f0f0f0;
+    background: #f0f0f071;
 }
 
 .previous-task-square {
-  background: #f0f0f0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -739,6 +834,7 @@ p {
 .previous-task-content {
     display: flex;
     justify-content: space-between;
+    gap: 15px;
 }
 
 .poster-profile-picture {
@@ -757,6 +853,7 @@ p {
 
 .previous-task-details-content {
     display: flex;
+    gap: 15px;
 }
 
 .previous-task-detail {
@@ -766,7 +863,7 @@ p {
 }
 
 .previous-task-detail p {
-    background-color: rgb(196, 196, 196);
+    background-color: var(--light-green);
     padding: 5px;
     border-radius: 100px;
     white-space: nowrap;       /* prevent line break */
@@ -782,4 +879,19 @@ p {
 
 .display-none {
     display: none;
+}
+
+.logout-btn {
+    text-decoration: none;
+    background-color: var(--light-green);
+    color: var(--black);
+    border: 1px solid var(--black);
+    transition: 0.5s;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 18px;
+}
+
+.logout-btn:hover {
+    background-color: var(--main-color);
 }

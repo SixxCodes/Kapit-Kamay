@@ -70,7 +70,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Student Dashboard - <?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></title>
+        <title><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?>'s Dashboard - </title>
         <link rel="stylesheet" href="css/stud_style.css">
         <link rel="stylesheet" href="css/mobile_style.css">
         <link rel="shortcut icon" href="../../assets/images/logo1.png" type="image/x-icon">
@@ -119,7 +119,7 @@
                     }
                 ?>
                 <div class="header-main-notifications">
-                    <img src="../../assets/images/notification-bell-icon.jpg" alt="Notifications" onclick="toggleNotificationsDropdown()" data-community-id="<?php echo $studentID; ?>">
+                    <img src="../../assets/images/notif-btn-green.png" alt="Notifications" onclick="toggleNotificationsDropdown()" data-community-id="<?php echo $studentID; ?>">
                     <?php if ($unreadCount > 0): ?>
                         <span id="notificationBadge" class="notification-badge"><?php echo $unreadCount; ?></span>
                     <?php endif; ?>
@@ -287,7 +287,8 @@
                             <p><strong>Email:</strong> <?php echo htmlspecialchars($user['Email']); ?></p>
                             <p><strong>Role:</strong> <?php echo htmlspecialchars($user['Role']); ?></p>
                             <p><strong>Trust Points:</strong> <?php echo htmlspecialchars($user['TrustPoints']); ?></p>
-                            <a href="../logout.php">Logout</a>
+                                <br/>
+                            <a class="logout-btn" href="../logout.php">Logout</a>
                         </div>
                     </div>
                     
@@ -383,23 +384,30 @@
                                                 <!-- Task Details -->
                                                 <div class="task-details-1">
                                                 <!-- <p>📍 Location Type:<?= htmlspecialchars($task['LocationType']) ?></p> -->
-                                                    <p class="task-details-1-location"><strong>📍 Location:</strong> <?= htmlspecialchars($task['Location']) ?></p>
-                                                    <p class="task-details-1-date"><strong>📅 Completion Date:</strong> <?= htmlspecialchars($task['CompletionDate']) ?></p>
-                                                    <p><strong>🧩 Category:</strong> <?= htmlspecialchars($task['Category']) ?></p>
+                                                    <p class="task-details-1-location"><strong>📍 Location:</strong><br/>
+                                                    <?= htmlspecialchars($task['Location']) ?></p>
+                                                    <p class="task-details-1-date"><strong>📅 Completion Date:</strong><br/>
+                                                    <?= htmlspecialchars($task['CompletionDate']) ?></p>
+                                                    <p><strong>🧩 Category:</strong><br/>
+                                                    <?= htmlspecialchars($task['Category']) ?></p>
                                                 </div>
 
                                                 <div class="task-details-2">
                                                     <div class="task-details-inner-wrapper">
-                                                        <p><strong>⏳ Estimated Duration:</strong> <?= htmlspecialchars($task['EstimatedDuration']) ?></p>
+                                                        <p><strong>⏳ Estimated Duration:</strong><br/>
+                                                        <?= htmlspecialchars($task['EstimatedDuration']) ?></p>
                                                         <p><strong>💵 Price:</strong> ₱<?= number_format($task['Price'], 2) ?></p>
                                                     </div>
                                                 </div>
 
-                                                <p><strong>Task Description:</strong> <?= nl2br(htmlspecialchars($task['Description'])) ?></p>
+                                                <p><strong>Task Description</strong><br/>
+                                                <?= nl2br(htmlspecialchars($task['Description'])) ?></p>
                                                 
-                                                <p><strong>Contact via Email:</strong> <?= htmlspecialchars($task['PosterEmail']) ?></p>
+                                                <p><strong>Contact via Email</strong><br/>
+                                                <?= htmlspecialchars($task['PosterEmail']) ?></p>
                                                 
-                                                <p><strong>Notes:</strong> <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
+                                                <p><strong>Notes / Requirements</strong><br/>
+                                                <?= nl2br(htmlspecialchars($task['Notes'])) ?></p>
                                             
                                             </div>
                                         </div>
