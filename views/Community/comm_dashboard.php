@@ -65,7 +65,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="css/comm_style.css">
         <link rel="stylesheet" href="css/mobile_style.css">
-        <link rel="shortcut icon" href="../../assets/images/logo1.png" type="image/x-icon">
+        <link rel="shortcut icon" href="../../assets/images/logo4.png" type="image/x-icon">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <!-- <link rel="stylesheet" href="../css/main.css"> -->
     </head>
@@ -73,7 +73,7 @@
 
         <header class="main-header">
             <div class="header-main-logo">
-                <img src="../../assets/images/logo1.png" alt="Logo Sample">
+                <img src="../../assets/images/logo4.png" alt="Logo Sample">
                 <h1>Kapit-Kamay</h1>
             </div>
             <div class="header-main-role-dashboard">

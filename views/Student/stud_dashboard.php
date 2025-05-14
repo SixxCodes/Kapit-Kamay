@@ -73,14 +73,14 @@
         <title><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?>'s Dashboard - </title>
         <link rel="stylesheet" href="css/stud_style.css">
         <link rel="stylesheet" href="css/mobile_style.css">
-        <link rel="shortcut icon" href="../../assets/images/logo1.png" type="image/x-icon">
+        <link rel="shortcut icon" href="../../assets/images/logo4.png" type="image/x-icon">
     </head>
     <body>
         
         <!-- ------------------------------HEADER------------------------------ -->
         <header class="main-header">
             <div class="header-main-logo">
-                <img src="../../assets/images/logo1.png" alt="Logo Sample">
+                <img src="../../assets/images/logo4.png" alt="Logo Sample">
                 <h1>Kapit-Kamay</h1>
             </div>
             <div class="header-main-role-dashboard">
