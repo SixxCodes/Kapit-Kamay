@@ -39,6 +39,7 @@ body {
     color: var(--white);
     margin: 10px;
     line-height: 50px;
+    font-size: clamp(2rem, 2.5vw, 2.5rem);
 }
 
 .main-header-logo {
@@ -74,7 +75,14 @@ body {
     cursor: pointer;
     font-size: 20px;
     line-height: 75px;
+}
+
+.header-link {
     color: var(--black);
+}
+
+.header-link:hover {
+    color: black;
 }
 
 .header-btn {
@@ -84,10 +92,26 @@ body {
 
 .header-btn-1 {
     padding: 5px 20px;
+    color: var(--black);
+    background-color: var(--white);
+    transition: 0.5s;
+}
+
+.header-btn-1:hover {
+    background-color: black;
+    color: white;
 }
 
 .header-btn-2 {
     padding: 5px 20px;
+    background-color: var(--black);
+    color: white;
+    transition: 0.5s;
+}
+
+.header-btn-2:hover {
+    color: black;
+    background-color: var(--white);
 }
 
 /* ------------------SECTIONS------------------ */
@@ -135,15 +159,15 @@ section {
   line-height: 1;
 }
 
-.kamay-span {
+/* .kamay-span {
     color: var(--main-color);
-}
+} */
 
 .section-1-content-text p {
     color: var(--white);
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     max-width: 1000px;
-    font-weight: bold;
+    font-weight: bolder;
 }
 
 .join-btn {
@@ -155,6 +179,7 @@ section {
     font-weight: bold;
     border-radius: 50px;
     margin: 10px;
+    transition: 0.5s;
 }
 
 .join-btn:hover {
@@ -209,6 +234,11 @@ section {
     margin: 0;
     padding: 0;
     list-style: none;
+}
+
+.carousel ul li {
+    display: flex;
+    align-items: center;
 }
 
 .carousel ul li img {
@@ -302,7 +332,7 @@ section {
     justify-content: center; /* Center horizontally */
     align-items: center; /* Center vertically */
     width: 50%; /* Adjust width as needed */
-    height: 100%; 
+    height: 100vh; 
 }
 
 .section-2-content-pic .carousel ul li img {

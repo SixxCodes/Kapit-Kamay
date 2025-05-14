@@ -1,7 +1,4 @@
-@media screen and (max-width: 700px) {
-    .main-header-logo {
-        margin-left: 10px;
-    }
+@media screen and (max-width: 1000px) {
 
     .main-header-nav {
         display: none;
@@ -9,6 +6,13 @@
 
     .hamburger-icon-mobile {
         display: inline;
+        cursor: pointer;
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .main-header-logo {
+        margin-left: 10px;
     }
 
     .section-1-content {
@@ -22,6 +26,11 @@
     .section-1-content-text {
         order: 2;
     }
+
+    .carousel {
+        display: none;
+    }
+
 }
 
 @media screen and (max-width: 500px) {
